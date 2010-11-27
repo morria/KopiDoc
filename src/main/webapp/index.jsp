@@ -1,25 +1,45 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-    <script type="text/javascript" src="${pageContext.request.contextPath}/jquery/jquery-1.4.2.js"></script>
-    <script type="text/javascript" src="${pageContext.request.contextPath}/jquery/jquery.json-2.2.js"></script>
-    <script type="text/javascript" src="${pageContext.request.contextPath}/org/cometd.js"></script>
-    <script type="text/javascript" src="${pageContext.request.contextPath}/jquery/jquery.cometd.js"></script>
-    <script type="text/javascript" src="application.js"></script>
-    <%--
-    The reason to use a JSP is that it is very easy to obtain server-side configuration
-    information (such as the contextPath) and pass it to the JavaScript environment on the client.
-    --%>
-    <script type="text/javascript">
-        var config = {
-            contextPath: '${pageContext.request.contextPath}'
-        };
-    </script>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <title>KopiDoc</title>
+  <script type="text/javascript" 
+          src="${pageContext.request.contextPath}/jquery/jquery-1.4.2.js"></script>
+  <script type="text/javascript" 
+          src="${pageContext.request.contextPath}/jquery/jquery.json-2.2.js"></script>
+  <script type="text/javascript" 
+          src="${pageContext.request.contextPath}/org/cometd.js"></script>
+  <script type="text/javascript" 
+          src="${pageContext.request.contextPath}/jquery/jquery.cometd.js"></script>
+  <script type="text/javascript" 
+          src="application.js"></script>
+  <script type="text/javascript">
+    var config = {
+    contextPath: '${pageContext.request.contextPath}'
+    };
+  </script>
+
+  <link rel="stylesheet" type="text/css" 
+        href="http://ajax.googleapis.com/ajax/libs/yui/2.8.1/build/reset-fonts-grids/reset-fonts-grids.css" />
+
+  <link rel="stylesheet/less" href="css/style.less" type="text/css" />
+
+  <script type="text/javascript" 
+          src="http://lesscss.googlecode.com/files/less-1.0.35.min.js"></script>
+  <script type="text/javascript">
+    less.env = "development";
+    less.watch();
+  </script>
 </head>
 <body>
+  <section id="documentList">
+    <ol>
+    </ol>
+  </section>
 
-    <div id="body"></div>
+  <section id="document">
+  </section>
+
 
 </body>
 </html>

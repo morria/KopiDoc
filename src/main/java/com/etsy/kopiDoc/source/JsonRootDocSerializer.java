@@ -6,6 +6,7 @@ import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
+import com.sun.javadoc.Parameter;
 import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
 import org.codehaus.jackson.JsonGenerator;
@@ -83,6 +84,20 @@ public class JsonRootDocSerializer
 
           for(Tag tag : method.tags())
             gen.writeStringField(tag.kind(), tag.text());
+
+          gen.writeFieldName("parameters");
+          gen.writeStartArray();
+          for(Parameter parameter : method.parameters())
+          {
+            gen.writeStartObject();
+            {
+              gen.writeStringField("name", parameter.name());
+              gen.writeStringField("type", parameter.typeName());
+            }
+            gen.writeEndObject();
+          }
+          gen.writeEndArray();
+
 
           gen.writeBooleanField("isAbstract", method.isAbstract());
           gen.writeBooleanField("isPublic", method.isPublic());

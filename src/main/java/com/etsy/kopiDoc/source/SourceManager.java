@@ -7,6 +7,7 @@ import java.lang.Thread;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.HashMap;
+import java.util.Set;
 import net.contentobjects.jnotify.JNotify;
 import net.contentobjects.jnotify.JNotifyListener;
 import net.contentobjects.jnotify.JNotifyException;
@@ -17,8 +18,9 @@ import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.log4j.Logger;
 
 /**
- * 
- */
+  * Manage source files by scanning and monitoring for changes
+  * @author Andrew Morrison <asm@etsy.com>
+  */
 public class SourceManager
 {
   private static Logger logger = Logger.getLogger(SourceManager.class.getName());
@@ -94,8 +96,12 @@ public class SourceManager
     */
   public RootDoc getDocByFileName(String absolutePath)
   {
-    logger.debug("Request for document " + absolutePath);
     return fileToRootDocMap.get(absolutePath);
+  }
+
+  public Set getDocList()
+  {
+    return fileToRootDocMap.keySet();
   }
 
   /**

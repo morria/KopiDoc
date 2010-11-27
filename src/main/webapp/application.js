@@ -6,40 +6,34 @@
     {
         function _connectionEstablished()
         {
-            $('#body').append('<div>CometD Connection Established</div>');
+          console.log('CometD Connection Established');
         }
 
         function _connectionBroken()
         {
-            $('#body').append('<div>CometD Connection Broken</div>');
+          console.log('CometD Connection Broken');
         }
 
         function _connectionClosed()
         {
-            $('#body').append('<div>CometD Connection Closed</div>');
+          console.log('CometD Connection Closed');
         }
 
         // Function that manages the connection status with the Bayeux server
         var _connected = false;
         function _metaConnect(message)
         {
-            if (cometd.isDisconnected())
-            {
-                _connected = false;
-                _connectionClosed();
-                return;
-            }
-
-            var wasConnected = _connected;
-            _connected = message.successful === true;
-            if (!wasConnected && _connected)
-            {
-                _connectionEstablished();
-            }
-            else if (wasConnected && !_connected)
-            {
-                _connectionBroken();
-            }
+          if (cometd.isDisconnected()) {
+            _connected = false;
+            _connectionClosed();
+            return;
+          }
+          var wasConnected = _connected;
+          _connected = message.successful === true;
+          if (!wasConnected && _connected)
+            _connectionEstablished();
+          else if (wasConnected && !_connected)
+            _connectionBroken();
         }
 
         // Function invoked when first contacting the server and
@@ -48,39 +42,29 @@
         {
             if (handshake.successful === true)
             {
-                cometd.batch(function()
-                {
-                    cometd.subscribe('/hello', function(message)
-                    {
-                        $('#body').append('<div>Server Says: ' + message.data.greeting + '</div>');
+              cometd.batch(function() {
+                  cometd.subscribe('/addSources', function(message) {
+                      console.log(message.data);
+
+                      cometd.batch(function() {
+                          cometd.subscribe('/getDocumentList', function(message) {
+                              console.log(message.data.documentList[0]);
+
+                              for(var i in message.data.documentList)
+                                $('#documentList ol').append('<li>'+message.data.documentList[i]+'</li>');
+
+                              $('#documentList ol li').click(function(e) {
+                                  var documentName = $(this).html();
+                                  cometd.batch(function() {
+                                      cometd.publish('/service/getDocument', { absolutePath: documentName });
+                                    });
+                                });
+
+                            });
+                          cometd.publish('/service/getDocumentList', {} );
+                        });
                     });
-                    // Publish on a service channel since the message is for the server only
-                    cometd.publish('/service/hello', { name: 'Andy' });
-                });
-
-                cometd.batch(function()
-                {
-                  cometd.subscribe('/addSources', function(message)
-                  {
-                    console.log(message.data);
-
-                    cometd.batch(function()
-                    {
-                      cometd.subscribe('/getDocument', function(message)
-                      {
-                        var classInfo = $.parseJSON(message.data);
-
-                        console.log("Class Name: " + classInfo.className);
-
-                        $('#body').append('<pre>' + message.data + '</pre>');
-                      });
-                      cometd.publish('/service/getDocument', { absolutePath: 
-                          '/Users/asm/Development/KopiDoc/src/main/java/com/etsy/kopiDoc/source/SourceManager.java' });
-                    });
-
-
-                  });
-                  cometd.publish('/service/addSources', { sourcePath:'src/main/java',
+                  cometd.publish('/service/addSources', { sourcePath:   'src/main/java',
                         classPath: 'target/classes'});
                 });
             }
@@ -100,7 +84,26 @@
 
         cometd.addListener('/meta/handshake', _metaHandshake);
         cometd.addListener('/meta/connect', _metaConnect);
-
         cometd.handshake();
+
+        cometd.addListener('/getDocument', function(message) {
+            var classInfo = $.parseJSON(message.data.class);
+            $('#document').html('');
+
+            $('#document').append('<h1>'+classInfo.className+'</h1>');
+            $('#document').append('<p>'+classInfo.comment+'</p>');
+            
+            $('#document').append('<ol>');
+            for(var i  in classInfo.importedClasses)
+              $('#document').append('<li>import '+classInfo.importedClasses[i]+'</li>');
+            $('#document').append('</ol>');
+
+            $('#document').append('<ol>');
+            for(var i  in classInfo.methods)
+              $('#document').append('<li>'+classInfo.methods[i].name+'</li>');
+            $('#document').append('</ol>');
+          });
+
+
     });
 })(jQuery);
