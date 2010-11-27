@@ -1,0 +1,5 @@
+<div class="method">
+  <%= method.returnType %> <%= method.name %>( <% for(var i in method.parameters) { %>
+  <%= method.parameters[i].type %> <%= method.parameters[i].name %>, 
+  <%}%>); 
+</div>

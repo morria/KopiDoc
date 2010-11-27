@@ -1,0 +1,7 @@
+<h1><%= doc.className %></h1>
+<p><%= doc.comment %></p>
+<h2>Methods</h2>
+<ol>
+<% for(i=0;i < doc.methods.length; i++) { %>
+  <%= $.View('//kopidoc/views/class_document/showmethod', {method: doc.methods[i]})%>   
+<%}%>
