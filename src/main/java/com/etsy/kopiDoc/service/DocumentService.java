@@ -41,6 +41,8 @@ public class DocumentService extends AbstractService
         boolean success =
           sourceManager.addSources(sourcePath,classPath);
 
+        logger.debug("Sending success " + (success? "true":"false"));
+
         Map<String, Object> output = new HashMap<String, Object>();
         output.put("success", success? "true":"false");
         remote.deliver(getServerSession(), "/addSources", output, null);
