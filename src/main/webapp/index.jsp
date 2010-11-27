@@ -32,14 +32,12 @@
   </script>
 </head>
 <body>
-  <section id="documentList">
-    <ol>
-    </ol>
-  </section>
-
-  <section id="document">
-  </section>
-
-
+  <div id="main">
+    <section id="documentList" class="list menu">
+      <ol></ol>
+    </section>
+    <section id="document" class="list document">
+    </section>
+  </div>
 </body>
 </html>
