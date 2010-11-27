@@ -17,9 +17,12 @@ $.Controller.extend('kopidoc.Controllers.Menu',
  */
  load: function(){
 
+     var sourcePath = config.sourcePath;
+     var classPath = config.classPath;
+
 	   if(!$("#menu").length) {
 	       $('#main').append($('<section/>').attr('id','menu').attr('class','list menu'));
-		     kopidoc.Models.Menu.findAll({}, this.callback('list'));
+		     kopidoc.Models.Menu.findAll({sourcePath: sourcePath, classPath: classPath}, this.callback('list'));
  	   }
  },
 
@@ -29,14 +32,13 @@ $.Controller.extend('kopidoc.Controllers.Menu',
  */
  list: function( message ) {
      var docList = message.data.documentList;
-
-	   $('#menu').html(this.view('init', {documentList: docList} ));
+	   $('#menu').html(this.view('init', {documentList: docList, sourcePath: config.sourcePath} ));
  },
 
 '.fileName click': function(el) {
 
     var cometd = $.cometd;
-    var documentName = $.trim(el.html());
+    var documentName = $.trim(el.attr('rel'));
     console.warn(documentName);
     cometd.batch(function() {
         cometd.publish('/service/getDocument', { absolutePath: documentName });

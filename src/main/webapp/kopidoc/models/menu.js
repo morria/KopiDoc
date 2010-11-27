@@ -25,8 +25,8 @@ $.Model.extend('kopidoc.Models.Menu',
 
       cometd.addListener('/getDocumentList', function(documentList) { success(documentList); });
 
-      cometd.publish('/service/addSources', { sourcePath:   'src/main/java',
-                                              classPath: 'target/classes'});
+      cometd.publish('/service/addSources', { sourcePath:  params.sourcePath,
+                                              classPath: params.classPath});
 	},
 
 },

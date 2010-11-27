@@ -16,8 +16,8 @@ $.Controller.extend('kopidoc.Controllers.ClassDocument',
  * When the page loads, gets all class_documents to be displayed.
  */
  load: function(){
-	   if(!$("#classDocument").length) {
-         $('#main').append($('<section />').attr('id','classDocument').attr('class','list document'));
+	   if(!$("#classDocumentSet").length) {
+         $('#main').append($('<div />').attr('id','classDocumentSet'));
 		     kopidoc.Models.ClassDocument.findAll({}, this.callback('show'));
  	   }
  },
@@ -28,7 +28,12 @@ $.Controller.extend('kopidoc.Controllers.ClassDocument',
 show: function( class_document ){
     var doc = $.parseJSON(class_document.data.class);
     console.warn(doc);
-	  $('#classDocument').html(this.view('show', {doc: doc} ));
+
+    var parsed = doc.className.split('.');
+    var id = parsed[parsed.length-1];
+
+    $('#classDocumentSet').prepend($('<section />').attr('id', id).attr('class', 'list document'));
+	  $('#'+id).html(this.view('show', {doc: doc} ));
  },
 
  /**

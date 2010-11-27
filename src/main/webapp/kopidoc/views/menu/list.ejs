@@ -1,5 +1,5 @@
 <%for(var i = 0; i < documentList.length ; i++){%>
- <li class="fileName">
-  <%= documentList[i] %>
+ <li class="fileName" rel="<%= documentList[i] %>">
+  <%= documentList[i].split(sourcePath+"/")[1] %>
  </li>
 <%}%>
