@@ -60,11 +60,28 @@
 
                 cometd.batch(function()
                 {
-                  cometd.subscribe('/document', function(message)
+                  cometd.subscribe('/addSources', function(message)
                   {
                     console.log(message.data);
+
+                    cometd.batch(function()
+                    {
+                      cometd.subscribe('/getDocument', function(message)
+                      {
+                        var classInfo = $.parseJSON(message.data);
+
+                        console.log("Class Name: " + classInfo.className);
+
+                        $('#body').append('<pre>' + message.data + '</pre>');
+                      });
+                      cometd.publish('/service/getDocument', { absolutePath: 
+                          '/Users/asm/Development/KopiDoc/src/main/java/com/etsy/kopiDoc/source/SourceManager.java' });
+                    });
+
+
                   });
-                  cometd.publish('/service/document', { className:'com.etsy.kopiDoc.DocumentService' });
+                  cometd.publish('/service/addSources', { sourcePath:'src/main/java',
+                        classPath: 'target/classes'});
                 });
             }
         }
