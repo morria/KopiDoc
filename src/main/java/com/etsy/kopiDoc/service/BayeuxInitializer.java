@@ -1,4 +1,4 @@
-package com.etsy.kopiDoc;
+package com.etsy.kopiDoc.service;
 
 import java.io.IOException;
 import javax.servlet.GenericServlet;

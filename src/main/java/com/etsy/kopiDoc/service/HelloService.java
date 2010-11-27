@@ -1,4 +1,4 @@
-package com.etsy.kopiDoc;
+package com.etsy.kopiDoc.service;
 
 import java.util.Map;
 import java.util.HashMap;
