@@ -17,17 +17,14 @@ $.Model.extend('kopidoc.Models.Menu',
  	 */
 	findAll: function( params, success, error ){
 
-      var cometd = $.cometd;
+      $.cometd.addListener('/getClassList', function(classList) { success(classList); });
 
-      cometd.addListener('/addSources',  function(message) { 
-          cometd.publish('/service/getFileList', {} );
-          cometd.publish('/service/getClassList', {} );
+      $.cometd.addListener('/addSources',  function(message) { 
+          $.cometd.publish('/service/getClassList', {} );
       } );
 
-      cometd.addListener('/getFileList', function(fileList) { success(fileList); });
-
-      cometd.publish('/service/addSources', { sourcePath:  params.sourcePath,
-                                              classPath: params.classPath});
+      $.cometd.publish('/service/addSources', { sourcePath:  params.sourcePath,
+                                                                         classPath: params.classPath});
 	},
 
 },

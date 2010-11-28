@@ -5,6 +5,7 @@ import com.sun.javadoc.RootDoc;
 import java.io.File;
 import java.io.IOException;
 import java.lang.Thread;
+import java.lang.Runtime;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.HashMap;
@@ -32,44 +33,86 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.store.NIOFSDirectory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.Version;
 
 /**
-  * Manage source files by scanning and monitoring for changes
+  * Manage source files by scanning and monitoring for changes as well as
+  * managing the Lucene index
   * @author Andrew Morrison <asm@etsy.com>
   */
 public class SourceManager
 {
   private static Logger logger = Logger.getLogger(SourceManager.class.getName());
 
-  private HashMap<String,RootDoc> fileToRootDocMap = null;
   private HashMap<String,Integer> directoryToWatchMap = null;
 
   private QueryParser queryParser = null;
-  private IndexWriter indexWriter = null;
-  private Directory indexDirectory = null;
+//   private IndexWriter indexWriter = null;
+//   private Directory indexDirectory = null;
 
   /**
     *
     */
   public SourceManager()
   {
-    fileToRootDocMap = new HashMap<String,RootDoc>(50);
     directoryToWatchMap = new HashMap<String, Integer>(30);
 
-    indexDirectory = new RAMDirectory();
     KeywordAnalyzer analyzer = new KeywordAnalyzer();
+
     queryParser = new QueryParser(Version.LUCENE_CURRENT, "title", analyzer);
+  }
+
+  private IndexWriter getIndexWriter() {
+
+    // Runtime.getRuntime().addShutdownHook(new ShutdownHook());
+
+    Directory indexDirectory = getIndexDirectory();
+    KeywordAnalyzer analyzer = new KeywordAnalyzer();
 
     try {
-      indexWriter = new IndexWriter(indexDirectory,
-                                    analyzer, true, IndexWriter.MaxFieldLength.UNLIMITED);
-      indexWriter.commit();
+      IndexWriter indexWriter = new IndexWriter(indexDirectory,
+                                                analyzer, true, IndexWriter.MaxFieldLength.UNLIMITED);
+      return indexWriter;
     }
     catch (Exception e) {
       logger.error(e.toString());
+      return null;
     }
+  }
 
+
+  private Directory getIndexDirectory()
+  {
+    try
+    {
+      File directory = new File(System.getProperty("java.io.tmpdir"), "KopiDocStore");
+      if(directory.exists())
+      {
+        if(!directory.isDirectory())
+        {
+          logger.error("Cannot create lucene index at " + directory.getAbsolutePath());
+          return null;
+        }
+        logger.debug("Loading index directory from " + directory.getAbsolutePath());
+      }
+      else
+      {
+        directory.mkdir();
+        logger.debug("Created index directory at " + directory.getAbsolutePath());
+      }
+      
+      Directory indexDirectory = new SimpleFSDirectory(directory);
+      
+      return indexDirectory;
+    }
+    catch(Exception e)
+    {
+      logger.error(e.toString());
+      return null;
+    }
   }
 
   /**
@@ -94,29 +137,48 @@ public class SourceManager
     for(File file : fileSet)
       addSource(file, sourcePath, classPath);
 
+    // commit();
+
     return true;
   }
+
+
 
   /**
     *
     */
   protected boolean addSource(File file, String sourcePath, String classPath)
   {
-    removeSource(file);
+    Document document = 
+      getDocumentByQueryString("fileName:" + file.getAbsolutePath());
+
+    // If this doc is indexed, either kill it so we can re-index if the
+    // incoming file is newer, or else don't re-index
+    if(document != null) {
+      if(file.lastModified() <= Long.parseLong(document.get("lastModified")))
+      {
+        logger.debug("File not modified");
+        return true;
+      }
+      logger.debug("Removing stale file");
+      removeSource(file);
+    }
+    else
+      logger.debug("File is virgin");
 
     Javadoc javadoc = new Javadoc();
-    javadoc.execute(file.getAbsolutePath(), sourcePath, classPath);
+    String errorMessages = javadoc.execute(file.getAbsolutePath(), sourcePath, classPath);
     RootDoc rootDoc = javadoc.getRootDoc();
 
     logger.debug("Adding document with path " + file.getAbsolutePath());
-    fileToRootDocMap.put(file.getAbsolutePath(), rootDoc);
 
-    Document document =
-      RootDocDocumentFactory.getDocument(file, sourcePath, rootDoc);
+    document =
+      RootDocDocumentFactory.getDocument(file, sourcePath, rootDoc, errorMessages);
 
     try {
-      indexWriter.addDocument(document);
-      indexWriter.commit();
+      IndexWriter writer = getIndexWriter();
+      writer.addDocument(document);
+      writer.close();
     }
     catch (Exception e) {
       logger.error(e.toString());
@@ -128,7 +190,6 @@ public class SourceManager
       String parentDirectoryName = file.getParentFile().getAbsolutePath();
       if(directoryToWatchMap.get(parentDirectoryName) == null)
       {
-        logger.debug("Adding watch");
         int watchId = 
           JNotify.addWatch(parentDirectoryName, JNotify.FILE_ANY, 
                            false, new Listener(sourcePath, classPath));
@@ -155,7 +216,7 @@ public class SourceManager
     try
     {
       Query query = queryParser.parse("fileName:" + file.getAbsolutePath());
-      IndexSearcher indexSearcher = new IndexSearcher(indexDirectory, false);
+      IndexSearcher indexSearcher = new IndexSearcher(getIndexDirectory(), false);
       IndexReader indexReader = indexSearcher.getIndexReader();
       for(ScoreDoc hit : indexSearcher.search(query, 1).scoreDocs)
         indexReader.deleteDocument(hit.doc);
@@ -184,7 +245,7 @@ public class SourceManager
 
     try
     {
-      IndexSearcher indexSearcher = new IndexSearcher(indexDirectory, true);
+      IndexSearcher indexSearcher = new IndexSearcher(getIndexDirectory(), true);
       for(ScoreDoc hit : indexSearcher.search(query, 1000).scoreDocs)
         documentList.add(indexSearcher.doc(hit.doc));
     }
@@ -225,7 +286,7 @@ public class SourceManager
   {
     try
     {
-      IndexSearcher indexSearcher = new IndexSearcher(indexDirectory, true);
+      IndexSearcher indexSearcher = new IndexSearcher(getIndexDirectory(), true);
       for(ScoreDoc hit : indexSearcher.search(query, 1).scoreDocs)
         return indexSearcher.doc(hit.doc);
     }
@@ -317,6 +378,17 @@ public class SourceManager
     return classList;
   }
 
+  /*
+  private void commit() {
+    try {
+      indexWriter.commit();
+    } catch (Exception e) {
+      logger.error("Commit Failed: " + e.toString());
+    }
+  }
+  */
+
+
   /**
     *
     */
@@ -333,27 +405,74 @@ public class SourceManager
 
     public void fileRenamed(int wd, String rootPath, String oldName,
                             String newName) {
-      logger.info("renamed " + rootPath + " : " + oldName + " -> " + newName);
-      removeSource(new File(rootPath, oldName));
-      addSource(new File(rootPath, newName), sourcePath, classPath);
+      File fileOld = new File(rootPath, oldName);
+      if(HiddenFileFilter.VISIBLE.accept(fileOld))
+      {
+        logger.info("rename del " + fileOld.getAbsolutePath());
+        removeSource(fileOld);
+        // commit();
+      }
+      File fileNew = new File(rootPath, newName);
+      if(HiddenFileFilter.VISIBLE.accept(fileNew))
+      {
+        logger.info("rename add " + fileNew.getAbsolutePath());
+        addSource(fileNew, sourcePath, classPath);
+        // commit();
+      }
     }
 
-
     public void fileModified(int wd, String rootPath, String name) {
-      logger.info("modified " + rootPath + " : " + name);
-      addSource(new File(rootPath, name), sourcePath, classPath);
+      File file = new File(rootPath, name);
+
+      if(!HiddenFileFilter.VISIBLE.accept(file))
+        return;
+
+      logger.info("modified " + file.getAbsolutePath());
+      addSource(file, sourcePath, classPath);
+      // commit();
     }
 
     public void fileDeleted(int wd, String rootPath, String name) {
-      logger.info("deleted " + rootPath + " : " + name);
-      removeSource(new File(rootPath, name));
+      File file = new File(rootPath, name);
+
+      if(!HiddenFileFilter.VISIBLE.accept(file))
+        return;
+
+      logger.info("deleted " + file.getAbsolutePath());
+      removeSource(file);
+      // commit();
     }
 
     public void fileCreated(int wd, String rootPath, String name) {
-      logger.info("created " + rootPath + " : " + name);
-      addSource(new File(rootPath, name), sourcePath, classPath);
+      File file = new File(rootPath, name);
+
+      if(!HiddenFileFilter.VISIBLE.accept(file))
+        return;
+
+      logger.info("created " + file.getAbsolutePath());
+      addSource(file, sourcePath, classPath);
+      // commit();
     }
   }
+
+  class ShutdownHook extends Thread
+  {
+    public ShutdownHook() { }
+    
+    public void run() {
+      logger.info("Closing index writer");
+      /*
+      try
+      {
+        indexWriter.commit();
+        indexWriter.close();
+      } catch(Exception e) {
+        logger.error(e);
+      }
+      */
+    }
+  }
+
 
   /**
     * 
@@ -363,8 +482,10 @@ public class SourceManager
     public SourceWalker(File startDirectory, Collection results)
       throws IOException
     { 
-      super(HiddenFileFilter.VISIBLE, FileFilterUtils.suffixFileFilter("java"), 15);
-      logger.debug("Walking " + startDirectory.toString());
+      super(HiddenFileFilter.VISIBLE, 
+            FileFilterUtils.andFileFilter(FileFilterUtils.suffixFileFilter("java"),
+                                          HiddenFileFilter.VISIBLE), 15);
+
       walk(startDirectory, results);
     }
 

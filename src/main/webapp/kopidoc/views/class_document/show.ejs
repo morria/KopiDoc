@@ -1,7 +1,32 @@
-<h1><%= doc.className %></h1>
-<p><%= doc.comment %></p>
-<h2>Methods</h2>
-<ol>
-<% for(i=0;i < doc.methods.length; i++) { %>
-  <%= $.View('//kopidoc/views/class_document/showmethod', {method: doc.methods[i]})%>   
-<%}%>
+<article>
+  <header>
+    <span class="packageName"><%= document.packageName %></span>
+    <h1><%= document.shortName %></h1>
+    <details open="open" class="comment">
+      <summary><%= document.comment %></summary>
+    </details>
+  </header>
+
+  <%= $.View('//kopidoc/views/class_document/showMethodList', 
+          { methods: document.methods, 
+             title: "Public Methods",
+             fChoose: function(method) { return method.isPublic; }
+           }) %>
+
+  <%= $.View('//kopidoc/views/class_document/showMethodList', 
+          { methods: document.methods, 
+             title: "Protected Methods",
+             fChoose: function(method) { return method.isProtected; }
+           }) %>
+
+  <%= $.View('//kopidoc/views/class_document/showMethodList', 
+          { methods: document.methods, 
+             title: "Private Methods",
+             fChoose: function(method) { return method.isPrivate; }
+           }) %>
+
+  <footer>
+    <span class="fileName"><%= document.fileName %></span>
+    <span class="lastModified">Last modified on <time>5/3/2010 5:32pm</time></span>
+  </footer>
+</article>

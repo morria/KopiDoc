@@ -2,14 +2,12 @@
   <% var methodName = method.name.split('.').slice(-1)[0] %>
   <header>
      <% if(method.isAbstract) { %><span class="abstract">abstract</span> <%}%>
-     <%= $.View('//kopidoc/views/class_document/showType', {type: method.returnType,
-                                                                                                    title: method['@return'] })%>
      <span class="methodName"><%= methodName %></span>
+     <span class="type returnType" title="<%= method['@return'] %>"><%= method.returnType %></span>
      <ol class="parameters">
        <% for(var i in method.parameters) { %>
          <li>
-           <%= $.View('//kopidoc/views/class_document/showType', 
-                           {type: method.parameters[i].type , title: null })%>
+           <span class="type"><%= method.parameters[i].type %></span>
            <span class="name"><%= method.parameters[i].name %></span>
          </li>
        <%}%>

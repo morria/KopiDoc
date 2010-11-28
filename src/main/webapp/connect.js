@@ -43,29 +43,11 @@
 
         cometd.configure({
             url: cometURL,
-            logLevel: 'debug'
+            logLevel: 'warn'
         });
 
         cometd.addListener('/meta/handshake', _metaHandshake);
         cometd.addListener('/meta/connect', _metaConnect);
         cometd.handshake();
-
-        cometd.addListener('/getDocument', function(message) {
-            var classInfo = $.parseJSON(message.data.class);
-            $('#document').html('');
-
-            $('#document').append('<h1>'+classInfo.className+'</h1>');
-            $('#document').append('<p>'+classInfo.comment+'</p>');
-            
-            $('#document').append('<ol>');
-            for(var i  in classInfo.importedClasses)
-              $('#document').append('<li>import '+classInfo.importedClasses[i]+'</li>');
-            $('#document').append('</ol>');
-
-            $('#document').append('<ol>');
-            for(var i  in classInfo.methods)
-              $('#document').append('<li>'+classInfo.methods[i].name+'</li>');
-            $('#document').append('</ol>');
-          });
     });
 })(jQuery);

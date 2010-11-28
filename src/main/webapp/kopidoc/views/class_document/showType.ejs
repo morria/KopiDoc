@@ -1,0 +1,12 @@
+<% if(type.isPrimitive) {%>
+  <span class="type returnType">
+<% } else { %>
+  <a class="type returnType" href="#" title="<%= title ? title : type.qualifiedName %>"
+       rel="<%= type.qualifiedName  %>">
+<% } %>
+<%= type.simpleTypeName %>
+<% if(type.isPrimitive) {%>
+  </span>
+<% } else { %>
+  </a>
+<% } %>

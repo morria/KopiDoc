@@ -1,10 +1,17 @@
+@colorBlack: #000;
+@colorDim: #888;
+@colorDefault: #444;
+@colorHighlight: #fffff0;
+@colorBorderLight: #f0f0f0;
+@colorType: #58C63D;
+@colorLink: #2E4BF7;
+
 html {
     height: 100% !important;
 }
 
-
 body {
-    color: #333;
+    color: @colorDefault;
     text-align: left;
     height: 100% !important;
 }
@@ -13,6 +20,16 @@ body {
     height: 100% !important;
 }
 
+a {
+    text-decoration: none;
+    color: @colorLink;
+}
+
+.type {
+    color: @colorType;
+}
+
+
 section.list
 {
     height: 100% !important;
@@ -20,21 +37,138 @@ section.list
     overflow: auto;
     margin-right: 10px;
     padding: 2px 2px 2px 2px;
-
-    ol li
-    {
-        border-top: 1px solid #f0f0f0;
-        margin-bottom: 5px;
-    }
 }
 
 section.menu
 {
     width: 200px;
+    clear: left;
+
+    ol li
+    {
+        border-top: 1px solid @colorBorderLight;
+        padding: 3px 3px 3px 3px;
+        margin-bottom: 7px;
+        cursor: pointer;
+
+        .packageName, .className {
+            display: block;
+        }
+
+        .packageName {
+            font-size: 10px;
+            color: @colorDim;
+        }
+
+        .className {
+            font-size: 14px;
+        }
+    }
+
+    ol li:hover {
+        background-color: @colorHighlight;
+
+       .packageName {
+            color: @colorDefault;
+        }
+        .className { 
+             color: @colorBlack;
+        }
+
+    }
+}
+
+#class_document {
+    height: 100% !important;
+    position: fixed;
+    top: 0;
+    left: 210px;
 }
 
 section.document
 {
-    width: 500px;
+    width: 600px !important;
     height: 100% !important;
+    float: left;
+    overflow: auto;
+
+    header {
+        h1 {
+            color: #333;
+            font-size: 24px;
+            text-shadow: #bbb 1px 1px 2px;
+            padding: 0;
+            letter-spacing: 1px;
+        }
+
+        .packageName {
+            color: @colorDim;
+            font-size: 12px;
+            float: right;
+        }
+
+        details {
+            summary {
+                font-size: 16px;
+                color: #aaa;
+            }
+
+            summary:before, summary:after { content: "''"; }
+        }
+    }
+
+    iframe.frameDoc {
+        width: 96%;
+        height: 96%;
+        border: none !important;
+    }
+
+    section {
+        margin-top: 20px;
+
+        h2 {
+            font-size: 14px;
+        }
+    }
+
+    section.methods {
+        header {
+            margin-bottom: 10px;
+
+            .toggle {
+                float: right;
+                font-size: 10px;
+                color: green;
+            }
+        }
+
+
+    }
+
+    ol.methodList>li .method {
+        padding: 2px 2px 0 2px;
+        margin-bottom: 10px;
+
+        header {
+            .abstract {
+                
+            }
+
+            .methodName {
+                font-size: 14px;
+                
+            }
+
+            .returnType {
+                width: 200px !important;
+                text-align: right;
+                font-size: 14px;
+            }
+
+            .parameters li {
+                display: inline;
+            }
+        }
+        
+    }
 }

@@ -22,7 +22,9 @@ $.Controller.extend('kopidoc.Controllers.Menu',
 
 	   if(!$("#menu").length) {
 	       $('#main').append($('<section/>').attr('id','menu').attr('class','list menu'));
-		     kopidoc.Models.Menu.findAll({sourcePath: sourcePath, classPath: classPath}, this.callback('list'));
+		     kopidoc.Models.Menu.findAll({sourcePath: sourcePath, 
+                                                         classPath: classPath}, 
+                                                        this.callback('list'));
  	   }
  },
 
@@ -31,42 +33,24 @@ $.Controller.extend('kopidoc.Controllers.Menu',
  * @param {Array} class_documents An array of kopidoc.Models.ClassDocument objects.
  */
  list: function( message ) {
-     var docList = message.data.documentList;
-	   $('#menu').html(this.view('init', {documentList: docList, sourcePath: config.sourcePath} ));
+     var classList = message.data.classList;
+     var tree = Object();
+     for(var i in classList) {
+         var elements = classList[i].split(".");
+         var packageName = elements.slice(0,elements.length-1).join(".");
+         var className = elements[elements.length-1];
+         if(!tree[packageName])
+             tree[packageName] = Array();
+         tree[packageName].push(className);
+     }
+	   $('#menu').html(this.view('init', {classTree: tree} ));
  },
 
-'.fileName click': function(el) {
-
-    var cometd = $.cometd;
-    var fileName = $.trim(el.attr('rel'));
-    cometd.batch(function() {
-        cometd.publish('/service/getFile', { absolutePath: fileName });
-    });
+'.menuItem.class click': function(el) {
+    var className = $.trim(el.attr('rel'));
+    $.cometd.publish('/service/getClass', { qualifiedClassName: className });
 },
 
-
- /**
- * Creates and places the edit interface.
- * @param {jQuery} el The menu's edit link element.
- */
-'.edit click': function( el ){
-	var menu = el.closest('.menu').model();
-	menu.elements().html(this.view('edit', menu));
-},
- /**
- * Removes the edit interface.
- * @param {jQuery} el The menu's cancel link element.
- */
-'.cancel click': function( el ){
-	this.show(el.closest('.menu').model());
-},
- /**
- * Updates the menu from the edit values.
- */
-'.update click': function( el ){
-	var $menu = el.closest('.menu'); 
-	$menu.model().update($menu.formParams());
-},
  /**
  * Listens for updated menus.	 When a menu is updated, 
  * update's its display.
@@ -74,12 +58,14 @@ $.Controller.extend('kopidoc.Controllers.Menu',
 'menu.updated subscribe': function( called, menu ){
 	this.show(menu);
 },
+
  /**
  * Shows a menu's information.
  */
 show: function( menu ){
 	menu.elements().html(this.view('show',menu));
 },
+
  /**
  *	 Handle's clicking on a menu's destroy link.
  */
@@ -88,6 +74,7 @@ show: function( menu ){
 		el.closest('.menu').model().destroy();
 	}
  },
+
  /**
  *	 Listens for menus being destroyed and removes them from being displayed.
  */

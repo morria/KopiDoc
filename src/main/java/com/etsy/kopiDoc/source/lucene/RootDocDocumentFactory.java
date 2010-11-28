@@ -30,7 +30,8 @@ public class RootDocDocumentFactory
   /**
     * 
     */
-  public static Document getDocument(File file, String sourcePath, RootDoc rootDoc)
+  public static Document getDocument(File file, String sourcePath, 
+                                     RootDoc rootDoc, String errorMessages)
   {
     String jsonDoc = getJsonFromRootDoc(rootDoc);
 
@@ -48,7 +49,13 @@ public class RootDocDocumentFactory
     document.add(new Field("className", classDoc.qualifiedName(),
                            Field.Store.YES, Field.Index.NOT_ANALYZED));
 
+    document.add(new Field("lastModified", String.valueOf(file.lastModified()),
+                           Field.Store.YES, Field.Index.NOT_ANALYZED));
+
     document.add(new Field("document", jsonDoc, 
+                           Field.Store.YES, Field.Index.NO));
+
+    document.add(new Field("errors", jsonDoc, 
                            Field.Store.YES, Field.Index.NO));
 
     return document;
