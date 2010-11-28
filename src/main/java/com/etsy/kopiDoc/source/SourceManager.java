@@ -22,13 +22,13 @@ import org.apache.lucene.analysis.KeywordAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
@@ -100,7 +100,7 @@ public class SourceManager
   /**
     *
     */
-  public boolean addSource(File file, String sourcePath, String classPath)
+  protected boolean addSource(File file, String sourcePath, String classPath)
   {
     removeSource(file);
 
@@ -145,12 +145,27 @@ public class SourceManager
   }
 
   /**
-    * 
+    * Remove a file from the index
+    *
+    * @param file
+    * A file which is to be removed from the index
     */
-  public boolean removeSource(File file)
+  protected boolean removeSource(File file)
   {
-    logger.debug("Remove File " + file.toString());
-    return false;
+    try
+    {
+      Query query = queryParser.parse("fileName:" + file.getAbsolutePath());
+      IndexSearcher indexSearcher = new IndexSearcher(indexDirectory, false);
+      IndexReader indexReader = indexSearcher.getIndexReader();
+      for(ScoreDoc hit : indexSearcher.search(query, 1).scoreDocs)
+        indexReader.deleteDocument(hit.doc);
+      return true;
+    }
+    catch(Exception e)
+    {
+      logger.error(e.toString());
+      return false;
+    }
   }
 
   /**
