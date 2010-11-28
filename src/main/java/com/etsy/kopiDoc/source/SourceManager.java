@@ -25,6 +25,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
@@ -50,8 +51,9 @@ public class SourceManager
   private HashMap<String,Integer> directoryToWatchMap = null;
 
   private QueryParser queryParser = null;
-//   private IndexWriter indexWriter = null;
-//   private Directory indexDirectory = null;
+  private IndexWriter indexWriter = null;
+  private Directory indexDirectory = null;
+  private IndexSearcher indexSearcher = null;
 
   /**
     *
@@ -62,27 +64,50 @@ public class SourceManager
 
     KeywordAnalyzer analyzer = new KeywordAnalyzer();
 
-    queryParser = new QueryParser(Version.LUCENE_CURRENT, "title", analyzer);
-  }
-
-  private IndexWriter getIndexWriter() {
-
-    // Runtime.getRuntime().addShutdownHook(new ShutdownHook());
-
-    Directory indexDirectory = getIndexDirectory();
-    KeywordAnalyzer analyzer = new KeywordAnalyzer();
-
     try {
-      IndexWriter indexWriter = new IndexWriter(indexDirectory,
-                                                analyzer, true, IndexWriter.MaxFieldLength.UNLIMITED);
-      return indexWriter;
+      indexDirectory = getIndexDirectory();
+      indexWriter = new IndexWriter(indexDirectory,
+                                    analyzer, true, IndexWriter.MaxFieldLength.UNLIMITED);
+
+      queryParser = new QueryParser(Version.LUCENE_CURRENT, "title", analyzer);
     }
     catch (Exception e) {
       logger.error(e.toString());
+      Thread.currentThread().dumpStack();
+    }
+
+    Runtime.getRuntime().addShutdownHook(new ShutdownHook());
+  }
+
+  /**
+    * 
+    */
+  private IndexSearcher getCurrentIndexSearcher()
+  {
+    try {
+      // If none exits, create it
+      if(indexSearcher == null) {
+        indexSearcher = new IndexSearcher(IndexReader.open(indexDirectory,true));
+        return indexSearcher;
+      }
+
+      // If it exists and is current, use it
+      if(indexSearcher.getIndexReader().isCurrent())
+      {
+        return indexSearcher;
+      }
+
+      // If its out of date, reopen it
+      logger.debug("Reopening Stale IndexSearcher");
+      indexSearcher = new IndexSearcher(indexSearcher.getIndexReader().reopen(true));
+      return indexSearcher;
+
+    } catch(Exception e) {
+      logger.error(e.toString());
+      Thread.currentThread().dumpStack();
       return null;
     }
   }
-
 
   private Directory getIndexDirectory()
   {
@@ -92,25 +117,19 @@ public class SourceManager
       if(directory.exists())
       {
         if(!directory.isDirectory())
-        {
-          logger.error("Cannot create lucene index at " + directory.getAbsolutePath());
           return null;
-        }
-        logger.debug("Loading index directory from " + directory.getAbsolutePath());
       }
       else
-      {
         directory.mkdir();
-        logger.debug("Created index directory at " + directory.getAbsolutePath());
-      }
       
-      Directory indexDirectory = new SimpleFSDirectory(directory);
+      Directory indexDirectory = FSDirectory.open(directory);
       
       return indexDirectory;
     }
     catch(Exception e)
     {
       logger.error(e.toString());
+      Thread.currentThread().dumpStack();
       return null;
     }
   }
@@ -131,13 +150,12 @@ public class SourceManager
     catch(IOException e)
     {
       logger.error(e.toString());
+      Thread.currentThread().dumpStack();
       return false;
     }
 
     for(File file : fileSet)
       addSource(file, sourcePath, classPath);
-
-    // commit();
 
     return true;
   }
@@ -157,33 +175,27 @@ public class SourceManager
     if(document != null) {
       if(file.lastModified() <= Long.parseLong(document.get("lastModified")))
       {
-        logger.debug("File not modified");
+        logger.debug("addSource("+file.getAbsolutePath()+"): Index is current");
         return true;
       }
-      logger.debug("Removing stale file");
-      removeSource(file);
+      logger.debug("addSource("+file.getAbsolutePath()+"): Removing stale file");
+      removeDocumentFromIndexByFile(file);
     }
     else
-      logger.debug("File is virgin");
+      logger.debug("addSource("+file.getAbsolutePath()+"): Adding new file");
 
     Javadoc javadoc = new Javadoc();
     String errorMessages = javadoc.execute(file.getAbsolutePath(), sourcePath, classPath);
     RootDoc rootDoc = javadoc.getRootDoc();
 
-    logger.debug("Adding document with path " + file.getAbsolutePath());
-
     document =
       RootDocDocumentFactory.getDocument(file, sourcePath, rootDoc, errorMessages);
 
-    try {
-      IndexWriter writer = getIndexWriter();
-      writer.addDocument(document);
-      writer.close();
-    }
-    catch (Exception e) {
-      logger.error(e.toString());
+    boolean success = 
+      addDocumentToIndex(document);
+
+    if(!success)
       return false;
-    }
 
     try
     {
@@ -199,10 +211,31 @@ public class SourceManager
     catch(JNotifyException e)
     {
       logger.error(e.toString());
+      Thread.currentThread().dumpStack();
       return false;
     }
 
     return true;
+  }
+
+
+  /**
+   *
+   */
+  protected boolean addDocumentToIndex(Document document)
+  {
+    synchronized(this) {
+      try {
+        indexWriter.addDocument(document);
+        indexWriter.commit();
+      }
+      catch (Exception e) {
+        logger.error(e.toString());
+        Thread.currentThread().dumpStack();
+        return false;
+      }
+      return true;
+    }
   }
 
   /**
@@ -211,21 +244,24 @@ public class SourceManager
     * @param file
     * A file which is to be removed from the index
     */
-  protected boolean removeSource(File file)
+  protected boolean removeDocumentFromIndexByFile(File file)
   {
-    try
-    {
-      Query query = queryParser.parse("fileName:" + file.getAbsolutePath());
-      IndexSearcher indexSearcher = new IndexSearcher(getIndexDirectory(), false);
-      IndexReader indexReader = indexSearcher.getIndexReader();
-      for(ScoreDoc hit : indexSearcher.search(query, 1).scoreDocs)
-        indexReader.deleteDocument(hit.doc);
-      return true;
-    }
-    catch(Exception e)
-    {
-      logger.error(e.toString());
-      return false;
+    synchronized(this) {
+      logger.debug("removeDocumentFromIndexByFile("+file.getAbsolutePath()+")");
+      try
+      {
+        Term term = new Term("fileName", file.getAbsolutePath());
+        indexWriter.deleteDocuments(term);
+        indexWriter.commit();
+        indexWriter.expungeDeletes(true);
+        return true;
+      }
+      catch(Exception e)
+      {
+        logger.error(e.toString());
+        Thread.currentThread().dumpStack();
+        return false;
+      }
     }
   }
 
@@ -245,12 +281,14 @@ public class SourceManager
 
     try
     {
-      IndexSearcher indexSearcher = new IndexSearcher(getIndexDirectory(), true);
-      for(ScoreDoc hit : indexSearcher.search(query, 1000).scoreDocs)
-        documentList.add(indexSearcher.doc(hit.doc));
+      IndexSearcher searcher = getCurrentIndexSearcher();
+
+      for(ScoreDoc hit : searcher.search(query, 1000).scoreDocs)
+        documentList.add(searcher.doc(hit.doc));
     }
     catch(Exception e) {
       logger.error(e.toString());
+      Thread.currentThread().dumpStack();
     }
 
     return documentList;
@@ -269,6 +307,7 @@ public class SourceManager
     catch(ParseException e)
     {
       logger.error(e.toString());
+      Thread.currentThread().dumpStack();
       return null;
     }
   }
@@ -286,12 +325,14 @@ public class SourceManager
   {
     try
     {
-      IndexSearcher indexSearcher = new IndexSearcher(getIndexDirectory(), true);
-      for(ScoreDoc hit : indexSearcher.search(query, 1).scoreDocs)
+      IndexSearcher searcher = getCurrentIndexSearcher();
+
+      for(ScoreDoc hit : searcher.search(query, 1).scoreDocs)
         return indexSearcher.doc(hit.doc);
     }
     catch(Exception e) {
       logger.error(e.toString());
+      Thread.currentThread().dumpStack();
     }
 
     return null;
@@ -310,6 +351,7 @@ public class SourceManager
     catch(ParseException e)
     {
       logger.error(e.toString());
+      Thread.currentThread().dumpStack();
       return null;
     }
   }
@@ -384,6 +426,7 @@ public class SourceManager
       indexWriter.commit();
     } catch (Exception e) {
       logger.error("Commit Failed: " + e.toString());
+      Thread.currentThread().dumpStack();
     }
   }
   */
@@ -409,7 +452,7 @@ public class SourceManager
       if(HiddenFileFilter.VISIBLE.accept(fileOld))
       {
         logger.info("rename del " + fileOld.getAbsolutePath());
-        removeSource(fileOld);
+        removeDocumentFromIndexByFile(fileOld);
         // commit();
       }
       File fileNew = new File(rootPath, newName);
@@ -429,7 +472,6 @@ public class SourceManager
 
       logger.info("modified " + file.getAbsolutePath());
       addSource(file, sourcePath, classPath);
-      // commit();
     }
 
     public void fileDeleted(int wd, String rootPath, String name) {
@@ -439,8 +481,7 @@ public class SourceManager
         return;
 
       logger.info("deleted " + file.getAbsolutePath());
-      removeSource(file);
-      // commit();
+      removeDocumentFromIndexByFile(file);
     }
 
     public void fileCreated(int wd, String rootPath, String name) {
@@ -451,7 +492,6 @@ public class SourceManager
 
       logger.info("created " + file.getAbsolutePath());
       addSource(file, sourcePath, classPath);
-      // commit();
     }
   }
 
@@ -460,19 +500,19 @@ public class SourceManager
     public ShutdownHook() { }
     
     public void run() {
-      logger.info("Closing index writer");
-      /*
+      logger.info("Committing and closing index on shutdown");
       try
       {
-        indexWriter.commit();
-        indexWriter.close();
+        synchronized(this) {
+          indexWriter.commit();
+          indexWriter.close();
+        }
       } catch(Exception e) {
         logger.error(e);
+        Thread.currentThread().dumpStack();
       }
-      */
     }
   }
-
 
   /**
     * 
