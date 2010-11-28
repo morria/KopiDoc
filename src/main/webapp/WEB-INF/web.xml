@@ -16,7 +16,7 @@
 
     <servlet>
         <servlet-name>initializer</servlet-name>
-        <servlet-class>com.etsy.kopiDoc.service.BayeuxInitializer</servlet-class>
+        <servlet-class>io.adroit.kopiDoc.service.BayeuxInitializer</servlet-class>
         <load-on-startup>2</load-on-startup>
     </servlet>
 

@@ -1,4 +1,4 @@
-package com.etsy.kopiDoc.source;
+package io.adroit.kopiDoc.source;
 
 import java.io.IOException;
 import java.util.LinkedList;

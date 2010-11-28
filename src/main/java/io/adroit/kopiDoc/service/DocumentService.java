@@ -1,7 +1,7 @@
-package com.etsy.kopiDoc.service;
+package io.adroit.kopiDoc.service;
 
-import com.etsy.kopiDoc.source.SourceManager;
-import com.etsy.kopiDoc.source.JsonRootDocSerializer;
+import io.adroit.kopiDoc.source.SourceManager;
+import io.adroit.kopiDoc.source.JsonRootDocSerializer;
 import com.sun.javadoc.RootDoc;
 import java.io.IOException;
 import java.util.Collection;

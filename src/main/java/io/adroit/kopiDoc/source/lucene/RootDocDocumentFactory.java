@@ -1,6 +1,6 @@
-package com.etsy.kopiDoc.source.lucene;
+package io.adroit.kopiDoc.source.lucene;
 
-import com.etsy.kopiDoc.source.JsonRootDocSerializer;
+import io.adroit.kopiDoc.source.JsonRootDocSerializer;
 import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;

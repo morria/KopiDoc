@@ -1,6 +1,6 @@
-package com.etsy.kopiDoc.source;
+package io.adroit.kopiDoc.source;
 
-import com.etsy.kopiDoc.source.lucene.RootDocDocumentFactory;
+import io.adroit.kopiDoc.source.lucene.RootDocDocumentFactory;
 import com.sun.javadoc.RootDoc;
 import java.io.File;
 import java.io.IOException;

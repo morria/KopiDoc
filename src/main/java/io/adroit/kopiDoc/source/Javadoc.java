@@ -1,4 +1,4 @@
-package com.etsy.kopiDoc.source;
+package io.adroit.kopiDoc.source;
 
 import com.sun.javadoc.*;
 import com.sun.tools.javadoc.*;
