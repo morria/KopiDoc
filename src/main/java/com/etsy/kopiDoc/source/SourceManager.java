@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.Collection;
 import net.contentobjects.jnotify.JNotify;
 import net.contentobjects.jnotify.JNotifyListener;
 import net.contentobjects.jnotify.JNotifyException;
@@ -22,9 +23,16 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.LockObtainFailedException;
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-
+import org.apache.lucene.util.Version;
 
 /**
   * Manage source files by scanning and monitoring for changes
@@ -37,7 +45,9 @@ public class SourceManager
   private HashMap<String,RootDoc> fileToRootDocMap = null;
   private HashMap<String,Integer> directoryToWatchMap = null;
 
-  IndexWriter indexWriter = null;
+  private QueryParser queryParser = null;
+  private IndexWriter indexWriter = null;
+  private Directory indexDirectory = null;
 
   /**
     *
@@ -47,10 +57,13 @@ public class SourceManager
     fileToRootDocMap = new HashMap<String,RootDoc>(50);
     directoryToWatchMap = new HashMap<String, Integer>(30);
 
+    indexDirectory = new RAMDirectory();
+    KeywordAnalyzer analyzer = new KeywordAnalyzer();
+    queryParser = new QueryParser(Version.LUCENE_CURRENT, "title", analyzer);
+
     try {
-      indexWriter = new IndexWriter(new RAMDirectory(), 
-                                    new KeywordAnalyzer(), true,
-                                    IndexWriter.MaxFieldLength.UNLIMITED);
+      indexWriter = new IndexWriter(indexDirectory,
+                                    analyzer, true, IndexWriter.MaxFieldLength.UNLIMITED);
       indexWriter.commit();
     }
     catch (Exception e) {
@@ -83,7 +96,6 @@ public class SourceManager
 
     return true;
   }
-
 
   /**
     *
@@ -133,19 +145,6 @@ public class SourceManager
   }
 
   /**
-    *
-    */
-  public RootDoc getDocByFileName(String absolutePath)
-  {
-    return fileToRootDocMap.get(absolutePath);
-  }
-
-  public Set getDocList()
-  {
-    return fileToRootDocMap.keySet();
-  }
-
-  /**
     * 
     */
   public boolean removeSource(File file)
@@ -154,6 +153,154 @@ public class SourceManager
     return false;
   }
 
+  /**
+    * Get a collection of documents given a query
+    *
+    * @param query
+    * Any lucene query
+    *
+    * @return
+    * A collection of matched documents
+    */
+  protected Collection<Document> getDocumentCollectionByQuery(Query query)
+  {
+    LinkedList<Document> documentList = 
+      new LinkedList<Document>();
+
+    try
+    {
+      IndexSearcher indexSearcher = new IndexSearcher(indexDirectory, true);
+      for(ScoreDoc hit : indexSearcher.search(query, 1000).scoreDocs)
+        documentList.add(indexSearcher.doc(hit.doc));
+    }
+    catch(Exception e) {
+      logger.error(e.toString());
+    }
+
+    return documentList;
+  }
+
+  /**
+    *
+    */
+  protected Collection<Document> getDocumentCollectionByQueryString(String queryString)
+  {
+    try
+    {
+      Query query = queryParser.parse(queryString);
+      return getDocumentCollectionByQuery(query);
+    }
+    catch(ParseException e)
+    {
+      logger.error(e.toString());
+      return null;
+    }
+  }
+
+  /**
+    *  Get a single document given a query
+    *
+    * @param query
+    * Any lucene query
+    *
+    * @return
+    * A single (highest scoring) document if matched, else null
+    */
+  protected Document getDocumentByQuery(Query query)
+  {
+    try
+    {
+      IndexSearcher indexSearcher = new IndexSearcher(indexDirectory, true);
+      for(ScoreDoc hit : indexSearcher.search(query, 1).scoreDocs)
+        return indexSearcher.doc(hit.doc);
+    }
+    catch(Exception e) {
+      logger.error(e.toString());
+    }
+
+    return null;
+  }
+
+  /**
+    * 
+    */
+  protected Document getDocumentByQueryString(String queryString)
+  {
+    try
+    {
+      Query query = queryParser.parse(queryString);
+      return getDocumentByQuery(query);
+    }
+    catch(ParseException e)
+    {
+      logger.error(e.toString());
+      return null;
+    }
+  }
+
+  /**
+    * Get a JSON document given an absolute file name
+    *
+    * @param absolutePath
+    * The absolute path to a source file
+    *
+    * @return
+    * A JSON document encoded as String
+    */
+  public String getJSONDocumentByFileName(String absolutePath)
+  {
+    Document document = getDocumentByQueryString("fileName:" + absolutePath);
+    return document.get("document");
+  }
+
+  /**
+    * Get a Collection of all file names in the index
+    *
+    * @return
+    * A collection of all file names that are indexed
+    */
+  public Collection<String> getFileList()
+  {
+    LinkedList<String> fileList = new LinkedList<String>();
+    Collection<Document> documents = getDocumentCollectionByQueryString("*:*");
+    for(Document document : documents)
+      fileList.add(document.get("fileName"));
+    return fileList;
+  }
+
+  /**
+    * Get a JSON document given a qualified class name
+    *
+    * @param qualifiedClassName
+    * A fully qualified class name
+    *
+    * @return
+    * A JSON document encoded as String
+    */
+  public String getJSONDocumentByClassName(String qualifiedClassName)
+  {
+    Document document = 
+      getDocumentByQueryString("className:" + qualifiedClassName);
+    return document.get("document");
+  }
+
+  /**
+    * Get a Collection of class names in the index
+    *
+    * @return
+    * A collection of class names in the index
+    */
+  public Collection<String> getClassList()
+  {
+    LinkedList<String> classList = new LinkedList<String>();
+
+    Collection<Document> documents = getDocumentCollectionByQueryString("*:*");
+
+    for(Document document : documents)
+      classList.add(document.get("className"));
+
+    return classList;
+  }
 
   /**
     *

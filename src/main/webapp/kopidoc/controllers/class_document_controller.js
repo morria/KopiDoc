@@ -26,7 +26,7 @@ $.Controller.extend('kopidoc.Controllers.ClassDocument',
  * @param {Array} class_documents An array of kopidoc.Models.ClassDocument objects.
  */
 show: function( class_document ){
-    var doc = $.parseJSON(class_document.data.class);
+    var doc = $.parseJSON(class_document.data.document);
     console.warn(doc);
 
     var parsed = doc.className.split('.');

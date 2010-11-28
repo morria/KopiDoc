@@ -16,7 +16,7 @@ $.Model.extend('kopidoc.Models.ClassDocument',
  	 * @param {Function} error a callback function for an error in the ajax request.
  	 */
 	findAll: function( params, success, error ){
-      $.cometd.addListener('/getDocument', function(doc) { success(doc); });
+      $.cometd.addListener('/getFile', function(file) { success(file); });
 	}
 },
 /* @Prototype */

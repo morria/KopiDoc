@@ -38,10 +38,9 @@ $.Controller.extend('kopidoc.Controllers.Menu',
 '.fileName click': function(el) {
 
     var cometd = $.cometd;
-    var documentName = $.trim(el.attr('rel'));
-    console.warn(documentName);
+    var fileName = $.trim(el.attr('rel'));
     cometd.batch(function() {
-        cometd.publish('/service/getDocument', { absolutePath: documentName });
+        cometd.publish('/service/getFile', { absolutePath: fileName });
     });
 },
 

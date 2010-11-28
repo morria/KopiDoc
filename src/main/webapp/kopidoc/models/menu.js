@@ -20,10 +20,11 @@ $.Model.extend('kopidoc.Models.Menu',
       var cometd = $.cometd;
 
       cometd.addListener('/addSources',  function(message) { 
-          cometd.publish('/service/getDocumentList', {} );
+          cometd.publish('/service/getFileList', {} );
+          cometd.publish('/service/getClassList', {} );
       } );
 
-      cometd.addListener('/getDocumentList', function(documentList) { success(documentList); });
+      cometd.addListener('/getFileList', function(fileList) { success(fileList); });
 
       cometd.publish('/service/addSources', { sourcePath:  params.sourcePath,
                                               classPath: params.classPath});

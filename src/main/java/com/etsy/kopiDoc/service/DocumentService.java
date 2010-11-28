@@ -4,6 +4,7 @@ import com.etsy.kopiDoc.source.SourceManager;
 import com.etsy.kopiDoc.source.JsonRootDocSerializer;
 import com.sun.javadoc.RootDoc;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
@@ -22,89 +23,98 @@ public class DocumentService extends AbstractService
 
   private static SourceManager sourceManager = null;
 
-    public DocumentService(BayeuxServer bayeux)
-    {
-        super(bayeux, "document");
-        sourceManager = new SourceManager();
-
-        addService("/service/addSources", "addSources");
-        addService("/service/getDocument", "getDocument");
-        addService("/service/getDocumentList", "getDocumentList");
-
-/*
-        addService("/service/getClassList", "getClassList");
-        addService("/service/getClass", "getClass");
-*/
-
-    }
-
-    public void addSources(ServerSession remote, Message message)
-    {
-        Map<String, Object> input = message.getDataAsMap();
-        String sourcePath = (String)input.get("sourcePath");
-        String classPath = (String)input.get("classPath");
-
-        boolean success =
-          sourceManager.addSources(sourcePath,classPath);
-
-        logger.debug("Sending success " + (success? "true":"false"));
-
-        Map<String, Object> output = new HashMap<String, Object>();
-        output.put("success", success? "true":"false");
-        remote.deliver(getServerSession(), "/addSources", output, null);
-    }
-
-
-  public void getDocument(ServerSession remote, Message message)
+  public DocumentService(BayeuxServer bayeux)
   {
-        Map<String, Object> input = message.getDataAsMap();
-        String absolutePath = (String)input.get("absolutePath");
+    super(bayeux, "document");
+    sourceManager = new SourceManager();
 
-        RootDoc rootDoc = 
-          sourceManager.getDocByFileName(absolutePath);
+    addService("/service/addSources", "addSources");
 
-        CustomSerializerFactory serializer = new CustomSerializerFactory();
-        serializer.addGenericMapping(RootDoc.class, new JsonRootDocSerializer());
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializerFactory(serializer);
+    addService("/service/getFile", "getFile");
+    addService("/service/getFileList", "getFileList");
 
-        Map<String, Object> output = new HashMap<String, Object>();
-        try {
-          String rootDocJson = mapper.writeValueAsString(rootDoc); 
-
-          logger.debug(rootDocJson);
-
-          output.put("class", rootDocJson);
-        }
-        catch(IOException e)
-        {
-          logger.error(e.toString());
-          output.put("class", "fail");
-        }
-
-        remote.deliver(getServerSession(), "/getDocument", output, null);
+    addService("/service/getClass", "getClass");
+    addService("/service/getClassList", "getClassList");
   }
 
-  public void getDocumentList(ServerSession remote, Message message)
+  /**
+    *
+    */
+  public void addSources(ServerSession remote, Message message)
   {
-        Map<String, Object> input = message.getDataAsMap();
+    Map<String, Object> input = message.getDataAsMap();
+    String sourcePath = (String)input.get("sourcePath");
+    String classPath = (String)input.get("classPath");
 
-        Set docSet = sourceManager.getDocList();
+    boolean success =
+      sourceManager.addSources(sourcePath,classPath);
 
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> output = new HashMap<String, Object>();
-        try {
-          String json = mapper.writeValueAsString(docSet); 
-          logger.debug(json);
-          output.put("documentList", docSet);
-        }
-        catch(IOException e)
-        {
-          logger.error(e.toString());
-          output.put("documentList", "fail");
-        }
+    logger.debug("Sending success " + (success? "true":"false"));
 
-        remote.deliver(getServerSession(), "/getDocumentList", output, null);
+    Map<String, Object> output = new HashMap<String, Object>();
+    output.put("success", success? "true":"false");
+    remote.deliver(getServerSession(), "/addSources", output, null);
+  }
+
+
+  /**
+    *
+    */
+  public void getFile(ServerSession remote, Message message)
+  {
+    Map<String, Object> input = message.getDataAsMap();
+    String absolutePath = (String)input.get("absolutePath");
+
+    String jsonDocument = 
+      sourceManager.getJSONDocumentByFileName(absolutePath);
+
+    Map<String, Object> output = new HashMap<String, Object>();
+    output.put("document", jsonDocument);
+
+    remote.deliver(getServerSession(), "/getFile", output, null);
+  }
+
+  /**
+    *
+    */
+  public void getFileList(ServerSession remote, Message message)
+  {
+    Collection<String> fileList = sourceManager.getFileList();
+
+    Map<String, Object> output = new HashMap<String, Object>();
+    output.put("documentList", fileList);
+
+    remote.deliver(getServerSession(), "/getFileList", output, null);
+  }
+
+  /**
+    *
+    */
+  public void getClassList(ServerSession remote, Message message)
+  {
+    Collection classList = sourceManager.getClassList();
+
+    Map<String, Object> output = new HashMap<String, Object>();
+    output.put("classList", classList);
+
+    remote.deliver(getServerSession(), "/getClassList", output, null);
+  }
+
+  /**
+    *
+    */
+  public void getClass(ServerSession remote, Message message)
+  {
+    Map<String, Object> input = message.getDataAsMap();
+    String qualifiedClassName = (String)input.get("qualifiedClassName");
+
+    String jsonDocument = 
+      sourceManager.getJSONDocumentByClassName(qualifiedClassName);
+
+    Map<String, Object> output = new HashMap<String, Object>();
+    output.put("document", jsonDocument);
+
+    remote.deliver(getServerSession(), "/getClass", output, null);
   }
 
 
