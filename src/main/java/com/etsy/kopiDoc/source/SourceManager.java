@@ -1,5 +1,6 @@
 package com.etsy.kopiDoc.source;
 
+import com.etsy.kopiDoc.source.lucene.RootDocDocumentFactory;
 import com.sun.javadoc.RootDoc;
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +17,14 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.log4j.Logger;
+import org.apache.lucene.analysis.KeywordAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.store.LockObtainFailedException;
+import org.apache.lucene.store.RAMDirectory;
+
 
 /**
   * Manage source files by scanning and monitoring for changes
@@ -26,6 +35,9 @@ public class SourceManager
   private static Logger logger = Logger.getLogger(SourceManager.class.getName());
 
   private HashMap<String,RootDoc> fileToRootDocMap = null;
+  private HashMap<String,Integer> directoryToWatchMap = null;
+
+  IndexWriter indexWriter = null;
 
   /**
     *
@@ -33,6 +45,18 @@ public class SourceManager
   public SourceManager()
   {
     fileToRootDocMap = new HashMap<String,RootDoc>(50);
+    directoryToWatchMap = new HashMap<String, Integer>(30);
+
+    try {
+      indexWriter = new IndexWriter(new RAMDirectory(), 
+                                    new KeywordAnalyzer(), true,
+                                    IndexWriter.MaxFieldLength.UNLIMITED);
+      indexWriter.commit();
+    }
+    catch (Exception e) {
+      logger.error(e.toString());
+    }
+
   }
 
   /**
@@ -75,12 +99,29 @@ public class SourceManager
     logger.debug("Adding document with path " + file.getAbsolutePath());
     fileToRootDocMap.put(file.getAbsolutePath(), rootDoc);
 
+    Document document =
+      RootDocDocumentFactory.getDocument(file, sourcePath, rootDoc);
+
+    try {
+      indexWriter.addDocument(document);
+      indexWriter.commit();
+    }
+    catch (Exception e) {
+      logger.error(e.toString());
+      return false;
+    }
+
     try
     {
-      int watchId = 
-        JNotify.addWatch(file.getAbsolutePath(), 
-                         JNotify.FILE_MODIFIED | JNotify.FILE_DELETED | JNotify.FILE_RENAMED,
-                         true, new Listener(sourcePath, classPath));
+      String parentDirectoryName = file.getParentFile().getAbsolutePath();
+      if(directoryToWatchMap.get(parentDirectoryName) == null)
+      {
+        logger.debug("Adding watch");
+        int watchId = 
+          JNotify.addWatch(parentDirectoryName, JNotify.FILE_ANY, 
+                           false, new Listener(sourcePath, classPath));
+        directoryToWatchMap.put(parentDirectoryName, watchId);
+      }
     }
     catch(JNotifyException e)
     {
@@ -117,7 +158,7 @@ public class SourceManager
   /**
     *
     */
-  class Listener implements JNotifyListener 
+  class Listener implements JNotifyListener
   {
     private String sourcePath;
     private String classPath;
@@ -134,6 +175,7 @@ public class SourceManager
       removeSource(new File(rootPath, oldName));
       addSource(new File(rootPath, newName), sourcePath, classPath);
     }
+
 
     public void fileModified(int wd, String rootPath, String name) {
       logger.info("modified " + rootPath + " : " + name);

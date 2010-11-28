@@ -14,7 +14,6 @@ import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
 
-
 public class JsonRootDocSerializer
   extends JsonSerializer<RootDoc>
 {

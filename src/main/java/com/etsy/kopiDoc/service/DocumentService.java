@@ -30,6 +30,12 @@ public class DocumentService extends AbstractService
         addService("/service/addSources", "addSources");
         addService("/service/getDocument", "getDocument");
         addService("/service/getDocumentList", "getDocumentList");
+
+/*
+        addService("/service/getClassList", "getClassList");
+        addService("/service/getClass", "getClass");
+*/
+
     }
 
     public void addSources(ServerSession remote, Message message)
