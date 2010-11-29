@@ -1,0 +1,51 @@
+.button
+{
+  /* structure */
+  .roundedCorners(6px);
+  padding: 4px 13px 4px 13px;
+  white-space: nowrap;
+  display: inline-block;
+  cursor: pointer;
+
+  /* look+feel */
+  .gradientBackground(#fff,#ccc);
+  .boxShadow(1px, 1px, 6px, #eee);
+  border: 1px solid #eee;
+  color: #666;
+  text-shadow: #fff 1px 1px 1px;
+  border-bottom: 1px solid #eee;
+
+  /* typography */
+  font-family: helvetica, arial, sans-serif;
+  font-weight: 500;
+  font-size: 12pt;
+  letter-spacing: 0.06em;
+  text-transform: capitalize;
+  word-spacing: -1px;
+  text-decoration: none;
+} 
+
+.button:hover
+{
+  color: #333;
+}
+
+.button:hover:active
+{ 
+  .gradientBackground(#fff,#ddd);
+  .boxShadow(0,0,0,#fff);
+}
+
+.icon
+{ 
+  padding-left: 22px;
+  background-repeat: no-repeat;
+  background-position: 3px center;
+  margin-left: -10px;
+}
+
+.icon100
+{
+  .icon;
+  background-image: url('../img/milky/16/101.png');
+}

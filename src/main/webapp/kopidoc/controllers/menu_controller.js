@@ -17,8 +17,10 @@ $.Controller.extend('kopidoc.Controllers.Menu',
  */
  load: function(){
 
-     var sourcePath = config.sourcePath;
-     var classPath = config.classPath;
+     /*
+     var sourcePath = localStorage.getItem('sourcePath');
+     var classPath = localStorage.getItem('classPath');
+     */
 
 	   if(!$("#menu").length) {
 	       $('#main').append($('<section/>').attr('id','menu').attr('class','list menu'));
@@ -29,8 +31,11 @@ $.Controller.extend('kopidoc.Controllers.Menu',
          $.cometd.addListener('/addSources',  function(message) { 
              $.cometd.publish('/service/getClassList', {} );
          } );
+
+         /*
          $.cometd.publish('/service/addSources', { sourcePath:  sourcePath,
                                                    classPath: classPath});
+         */
  	   }
  },
 

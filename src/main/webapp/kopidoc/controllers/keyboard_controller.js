@@ -40,14 +40,48 @@ keypressListener: function(event) {
     case "/":
         this.showSearch();
         break;
+    case "?":
+        this.showRepositoryConfig();
+        break;
     }
     return false;
+},
+
+showRepositoryConfig: function() {
+    this.stopKeypressListener();
+    if(!$('#repositoryConfig').length)
+	      $('#keyboard').append(this.view('showRepositoryConfig'));
+    $('#repositoryConfig').show(500);
+
+    $('#sourcePath').val(localStorage.getItem('sourcePath'));
+    $('#classPath').html(localStorage.getItem('classPath'));
+},
+
+'#buttonClose click': function() {
+    this.startKeypressListener();
+    $('#repositoryConfig').hide(500);
+},
+
+'#classPath change': function() {
+    localStorage.setItem('classPath', $('#classPath').val());
+},
+
+'#sourcePath change': function() {
+    localStorage.setItem('sourcePath', $('#sourcePath').val());
+},
+
+'#buttonLoadSource click': function() {
+    var sourcePath = localStorage.getItem('sourcePath');
+    var classPath = localStorage.getItem('classPath');
+
+    $.cometd.publish('/service/addSources', { sourcePath:  sourcePath,
+                                              classPath: classPath});
 },
 
 showSearch: function() {
     this.stopKeypressListener();
     if(!$('#searchWindow').length) {
-	      $('#keyboard').html(this.view('showSearch'));
+	      $('#keyboard').append(this.view('showSearch'));
         $(window).keydown(function(e) { 
             switch(e.keyCode) {
             case 38: // up
@@ -69,7 +103,6 @@ showSearch: function() {
                 }
                 return false;
             case 13: // enter
-                console.log('enter');
                 kopidoc.Controllers.ClassDocument.loadDocumentation($('#searchResult li.selected a'));
                 $('#searchInput').blur();
                 return false;
@@ -82,7 +115,7 @@ showSearch: function() {
 },
 
 'a.type click': function( el ) {
-    console.log('click');
+    // TODO: this doesn't get events
     return kopidoc.Controllers.ClassDocument.loadDocumentation(el);
 },
 

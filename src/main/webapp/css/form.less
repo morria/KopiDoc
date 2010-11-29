@@ -1,0 +1,75 @@
+section.form {
+
+  .roundedCorners(6px);
+  background-color: #f7f7f7;
+  padding: 20px 20px 20px 20px;
+
+  h2
+  { 
+    color: #777;
+    font-size: 16pt;
+    margin-bottom: 25px;
+    
+  }
+
+  fieldset
+  { 
+    dl
+    { 
+      margin-bottom: 20px;
+
+      dt
+      {
+        label
+        { 
+          color: #777;
+          font-size: 12pt;
+        }
+      }
+
+      dd
+      {
+        input, textarea, select
+        {
+          /* structure */
+          .roundedCorners(3px);
+          padding: 3px 3px 3px 3px;
+          width: 300px;
+
+          /* look+feel */
+          .gradientBackground(#eee,#fff);
+          border: 1px solid #ddd;
+          color: #555;
+          text-shadow: #ccc 1px 1px 1px;
+
+          /* typography */
+          font-size: 14pt;
+        }
+
+        textarea
+        {
+            height: 75px;
+        }       
+
+        .note
+        { 
+          font-size: 8pt;
+          font-weight: lighter;
+          color: #777;
+          padding: 0 3px 0 3px;
+        }
+      }
+    }
+  }
+}
+
+label.error
+{
+  .roundedCorners(6px);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  margin: 0 0 0 2px;
+  padding: 0px 5px 1px 5px;
+  color: #555;
+  background-color: #ffc;
+}

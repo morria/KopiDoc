@@ -1,4 +1,6 @@
 @import "definitions.less";
+@import "buttons.less";
+@import "form.less";
 
 @colorBlack: #000;
 @colorDim: #888;
@@ -174,30 +176,42 @@ section.document
     }
 }
 
-
-#searchWindow
-{
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    display: none;
-
-    #searchInput {
-        .roundedCorners(3px);
-        padding: 3px 3px 3px 3px;
-        width: 300px;
-
-        .gradientBackground(#eee, #fff);
-        border: 1px solid #ddd;
-        outline: none;
-        color: #555;
-        text-shadow: #ccc 1px 1px 1px;
-
-        font-size: 14pt;
+#keyboard {
+    #searchWindow
+    {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        display: none;
+        
+        #searchInput {
+            .roundedCorners(3px);
+            padding: 3px 3px 3px 3px;
+            width: 300px;
+            
+            .gradientBackground(#eee, #fff);
+            border: 1px solid #ddd;
+            outline: none;
+            color: #555;
+            text-shadow: #ccc 1px 1px 1px;
+            
+            font-size: 14pt;
+        }
+        
+        #searchResult {
+            li.selected:before { content: "⋙"; }
+            li.selected { position: relative; left: -12px; }
+        }
     }
 
-    #searchResult {
-        li.selected:before { content: "⋙"; }
-        li.selected { position: relative; left: -12px; }
+    #repositoryConfig {
+       width: 310px;
+        height: 500px;
+        position: fixed;
+        top: 3px;
+        left: 20%;
+        .roundedCorners(8px);
+        padding: 10px 10px 10px 10px;
+        background-color: #f0f0f0;
     }
 }
