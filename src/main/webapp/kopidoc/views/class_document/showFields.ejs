@@ -1,0 +1,31 @@
+<section class="methods">
+  <header>
+    <h2>Fields</h2>
+  </header>
+  <ol class="methodList">
+    <% for(i in fields) { %>
+    <li>
+      <% var field = fields[i]; %>
+      <div class="method">
+        <% var fieldName = field.name.split('.').slice(-1)[0] %>
+        <header>
+          <div class="qualifierList">
+            <% if(field.isPublic) { %><span class="qualifier final">public</span> <%}%>
+            <% if(field.isProtected) { %><span class="qualifier final">protected</span> <%}%>
+            <% if(field.isPrivate) { %><span class="qualifier final">private</span> <%}%>
+            <% if(field.isFinal) { %><span class="qualifier final">final</span> <%}%>
+          </div>
+          <span class="returnType">
+            <%= $.View('//kopidoc/views/class_document/showType', {type: field.type,
+                                                                            title: null })%>
+          </span>
+          <span class="fieldName"><%= fieldName %></span>
+      </header>
+      <details open="open" class="comment">
+        <summary><%= field.comment %></summary> 
+      </details>
+      </div>
+    </li>
+    <% } %>
+  </ol>
+</section>

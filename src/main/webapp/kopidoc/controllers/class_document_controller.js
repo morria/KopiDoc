@@ -26,7 +26,7 @@ $.Controller.extend('kopidoc.Controllers.ClassDocument',
     },
 
     getDocumentationSource: function(packageName, className) {
-        if(packageName.match(/^java\./))
+        if(packageName.match(/^javax?\./))
             return kopidoc.Controllers.ClassDocument.buildJavadocURL("http://download.oracle.com/javase/6/docs/api" ,
                                                                      packageName, className);
 
@@ -101,7 +101,7 @@ show: function( document ){
 
     var classId = classDoc.className.replace(new RegExp('\\.','g'),'_');
 
-    $('#class_document').prepend($('<section />').attr('id', classId)
+    $('#class_document').html($('<section />').attr('id', classId)
                                    .attr('class', 'list document'));
 
 	  $('#'+classId).html(this.view('show', {document: classDoc} ));

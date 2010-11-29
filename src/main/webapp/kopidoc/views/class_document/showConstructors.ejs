@@ -1,0 +1,33 @@
+<section class="methods">
+  <header>
+    <h2>Constructors</h2>
+  </header>
+  <ol class="methodList">
+    <% for(i in constructors) { %>
+    <li>
+      <% var constructor = constructors[i]; %>
+      <div class="method">
+        <% var constructorName = constructor.name.split('.').slice(-1)[0] %>
+        <header>
+          <div class="qualifierList">
+            <% if(constructor.isFinal) { %><span class="qualifier final">final</span> <%}%>
+          </div>
+          <span class="constructorName"><%= constructorName %></span>
+          <ol class="parameters">
+            <% for(var i in constructor.parameters) { %>
+            <li>
+              <%= $.View('//kopidoc/views/class_document/showType', 
+                                 {type: constructor.parameters[i].type , title: null })%>
+               <span class="name"><%= constructor.parameters[i].name %></span>
+            </li>
+          <%}%>
+        </ol>
+      </header>
+      <details open="open" class="comment">
+        <summary><%= constructor.comment %></summary> 
+      </details>
+      </div>
+    </li>
+    <% } %>
+  </ol>
+</section>

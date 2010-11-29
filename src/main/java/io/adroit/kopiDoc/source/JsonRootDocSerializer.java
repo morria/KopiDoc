@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.ConstructorDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Parameter;
@@ -89,6 +90,12 @@ public class JsonRootDocSerializer
     gen.writeEndArray();
 
     // Constructors
+    gen.writeFieldName("constructors");
+    gen.writeStartArray();
+    if(classDoc.constructors() != null)
+      for(ConstructorDoc constructorDoc : classDoc.constructors())
+        serializeConstructor(constructorDoc, gen, provider);
+    gen.writeEndArray();
 
     // Methods
     gen.writeFieldName("methods");
@@ -183,6 +190,49 @@ public class JsonRootDocSerializer
     }
     gen.writeEndObject();
   }
+
+  public void serializeConstructor(ConstructorDoc constructor, JsonGenerator gen, SerializerProvider provider)
+    throws IOException, JsonProcessingException 
+  {
+    gen.writeStartObject();
+    {
+      // Constructor Name
+      gen.writeStringField("name", constructor.qualifiedName());
+
+      // Comments
+      gen.writeStringField("comment", constructor.commentText());
+
+      for(Tag tag : constructor.tags())
+        gen.writeStringField(tag.kind(), tag.text());
+
+      // Parameters
+      gen.writeFieldName("parameters");
+      gen.writeStartArray();
+      for(Parameter parameter : constructor.parameters())
+        serializeParameter(parameter, gen, provider);
+      gen.writeEndArray();
+
+      // Thrown Exceptions
+      gen.writeFieldName("thrownExceptions");
+      gen.writeStartArray();
+      for(Type type : constructor.thrownExceptionTypes())
+        serializeType(type, gen, provider);
+      gen.writeEndArray();
+
+      // Qualifiers
+
+      gen.writeBooleanField("isStatic", constructor.isStatic());
+      gen.writeBooleanField("isFinal", constructor.isFinal());
+      gen.writeBooleanField("isPublic", constructor.isPublic());
+      gen.writeBooleanField("isPrivate", constructor.isPrivate());
+      gen.writeBooleanField("isProtected", constructor.isProtected());
+
+      // Signature
+      gen.writeStringField("signature", constructor.signature());
+    }
+    gen.writeEndObject();
+  }
+
  
   public void serializeField(FieldDoc field, JsonGenerator gen, SerializerProvider provider)
     throws IOException, JsonProcessingException 

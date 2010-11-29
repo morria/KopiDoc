@@ -2,10 +2,23 @@
   <header>
     <span class="packageName"><%= document.packageName %></span>
     <h1><%= document.shortName %></h1>
+    <% if( document.superclassType ) { %>
+    <h2>extends <%= $.View('//kopidoc/views/class_document/showType', 
+                           {type: document.superclassType , title: null })%></h2>
+    <%}%>
     <details open="open" class="comment">
-      <summary><%= document.comment %></summary>
+      <summary><pre><%= document.comment %></pre></summary>
     </details>
   </header>
+
+  <%= $.View('//kopidoc/views/class_document/showInterfaces',
+                      { interfaceTypes: document.interfaceTypes }) %>
+
+  <%= $.View('//kopidoc/views/class_document/showConstructors',
+                      { constructors: document.constructors }) %>
+
+  <%= $.View('//kopidoc/views/class_document/showFields',
+                      { fields: document.fields }) %>
 
   <%= $.View('//kopidoc/views/class_document/showMethodList', 
           { methods: document.methods, 
@@ -25,8 +38,5 @@
              fChoose: function(method) { return method.isPrivate; }
            }) %>
 
-  <footer>
-    <span class="fileName"><%= document.fileName %></span>
-    <span class="lastModified">Last modified on <time>5/3/2010 5:32pm</time></span>
-  </footer>
+
 </article>

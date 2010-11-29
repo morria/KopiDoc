@@ -1,9 +1,15 @@
 <div class="method">
   <% var methodName = method.name.split('.').slice(-1)[0] %>
   <header>
-     <% if(method.isAbstract) { %><span class="abstract">abstract</span> <%}%>
+    <div class="qualifierList">
+      <% if(method.isFinal) { %><span class="qualifier final">final</span> <%}%>
+      <% if(method.isAbstract) { %><span class="qualifier abstract">abstract</span> <%}%>
+      <% if(method.isStatic) { %><span class="qualifier static">static</span> <%}%>
+    </div>
+     <span class="returnType">
      <%= $.View('//kopidoc/views/class_document/showType', {type: method.returnType,
                                                                                                     title: method['@return'] })%>
+     </span>
      <span class="methodName"><%= methodName %></span>
      <ol class="parameters">
        <% for(var i in method.parameters) { %>
@@ -16,6 +22,6 @@
      </ol>
   </header>
   <details open="open" class="comment">
-    <summary>Comments are not yet sent to me</summary> 
+    <summary><%= method.comment %></summary> 
   </details>
 </div>
