@@ -30,6 +30,7 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.store.Directory;
@@ -284,7 +285,7 @@ public class SourceManager
     * @return
     * A collection of matched documents
     */
-  protected Collection<Document> getDocumentCollectionByQuery(Query query)
+  protected Collection<Document> getDocumentCollectionByQuery(Query query, int maxDocs)
   {
     LinkedList<Document> documentList = 
       new LinkedList<Document>();
@@ -293,7 +294,7 @@ public class SourceManager
     {
       IndexSearcher searcher = getCurrentIndexSearcher();
 
-      for(ScoreDoc hit : searcher.search(query, 1000).scoreDocs)
+      for(ScoreDoc hit : searcher.search(query, maxDocs).scoreDocs)
         documentList.add(searcher.doc(hit.doc));
     }
     catch(Exception e) {
@@ -307,12 +308,12 @@ public class SourceManager
   /**
     *
     */
-  protected Collection<Document> getDocumentCollectionByQueryString(String queryString)
+  protected Collection<Document> getDocumentCollectionByQueryString(String queryString, int maxDocs)
   {
     try
     {
       Query query = queryParser.parse(queryString);
-      return getDocumentCollectionByQuery(query);
+      return getDocumentCollectionByQuery(query, maxDocs);
     }
     catch(ParseException e)
     {
@@ -390,7 +391,7 @@ public class SourceManager
   public Collection<String> getFileList()
   {
     LinkedList<String> fileList = new LinkedList<String>();
-    Collection<Document> documents = getDocumentCollectionByQueryString("*:*");
+    Collection<Document> documents = getDocumentCollectionByQueryString("*:*", 500);
     for(Document document : documents)
       fileList.add(document.get("fileName"));
     return fileList;
@@ -422,12 +423,30 @@ public class SourceManager
   {
     LinkedList<String> classList = new LinkedList<String>();
 
-    Collection<Document> documents = getDocumentCollectionByQueryString("*:*");
+    Collection<Document> documents = getDocumentCollectionByQueryString("*:*", 500);
 
     for(Document document : documents)
       classList.add(document.get("className"));
 
     return classList;
+  }
+
+  /**
+    *
+    */
+  public Collection<String> searchSources(String queryString)
+  {
+    LinkedList<String> searchResult = new LinkedList<String>();
+
+    Term term = new Term("classNameLC", "*"+queryString.toLowerCase()+"*");
+    WildcardQuery query = new WildcardQuery(term);
+
+    Collection<Document> documents = getDocumentCollectionByQuery(query, 10);
+
+    for(Document document : documents)
+      searchResult.add(document.get("className"));
+
+    return searchResult;
   }
 
   /*

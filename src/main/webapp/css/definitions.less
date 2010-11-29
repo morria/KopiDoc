@@ -1,0 +1,19 @@
+.gradientBackground(@from: #aaa, @to: #777)
+{
+    background: @from;
+    background: -webkit-gradient(linear, left top, left bottom, from(@from), to(@to));
+    background: -moz-linear-gradient(top,  @from,  @to);
+}
+
+.roundedCorners (@radius: 5px) { 
+  -moz-border-radius: @radius;
+  -webkit-border-radius: @radius;
+  border-radius: @radius;
+}
+
+.boxShadow(@horizontal: 1px, @vertical: 1px, @blur: 6px, @color: #ddd)
+{ 
+  -moz-box-shadow: @horizontal @vertical @blur @color;
+  -webkit-box-shadow: @horizontal @vertical @blur @color;
+   box-shadow: @horizontal @vertical @blur @color;
+}

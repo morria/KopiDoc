@@ -35,6 +35,8 @@ public class DocumentService extends AbstractService
 
     addService("/service/getClass", "getClass");
     addService("/service/getClassList", "getClassList");
+
+    addService("/service/search", "search");
   }
 
   /**
@@ -90,7 +92,7 @@ public class DocumentService extends AbstractService
     */
   public void getClassList(ServerSession remote, Message message)
   {
-    Collection classList = sourceManager.getClassList();
+    Collection<String> classList = sourceManager.getClassList();
 
     Map<String, Object> output = new HashMap<String, Object>();
     output.put("classList", classList);
@@ -115,6 +117,21 @@ public class DocumentService extends AbstractService
     remote.deliver(getServerSession(), "/getClass", output, null);
   }
 
+  /**
+    *
+    */
+  public void search(ServerSession remote, Message message)
+  {
+    Map<String, Object> input = message.getDataAsMap();
+    String query = (String)input.get("query");
+
+    Collection<String> searchResult = sourceManager.searchSources(query);
+
+    Map<String, Object> output = new HashMap<String, Object>();
+    output.put("searchResult", searchResult);
+
+    remote.deliver(getServerSession(), "/searchResult", output, null);
+  }
 
 
 }

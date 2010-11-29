@@ -1,0 +1,5 @@
+<%for(var i = 0; i < keyboards.length ; i++){%>
+	<tr <%= keyboards[i]%>>
+		<%= $.View('//kopidoc/views/keyboard/show',keyboards[i])%>
+	</tr>
+<%}%>

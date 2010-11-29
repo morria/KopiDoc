@@ -22,12 +22,16 @@ $.Controller.extend('kopidoc.Controllers.Menu',
 
 	   if(!$("#menu").length) {
 	       $('#main').append($('<section/>').attr('id','menu').attr('class','list menu'));
-		     kopidoc.Models.Menu.findAll({sourcePath: sourcePath, 
-                                                         classPath: classPath}, 
-                                                        this.callback('list'));
- 	   }
 
-     $(window).bind('keypress', function(e) { console.log(e); });
+         var fSuccess = this.callback('list');
+         $.cometd.addListener('/getClassList', function(classList) { fSuccess(classList); });
+         $.cometd.publish('/service/getClassList', {} );
+         $.cometd.addListener('/addSources',  function(message) { 
+             $.cometd.publish('/service/getClassList', {} );
+         } );
+         $.cometd.publish('/service/addSources', { sourcePath:  sourcePath,
+                                                   classPath: classPath});
+ 	   }
  },
 
  /**

@@ -52,6 +52,9 @@ public class RootDocDocumentFactory
     document.add(new Field("className", classDoc.qualifiedName(),
                            Field.Store.YES, Field.Index.NOT_ANALYZED));
 
+    document.add(new Field("classNameLC", classDoc.qualifiedName().toLowerCase(),
+                           Field.Store.NO, Field.Index.NOT_ANALYZED));
+
     document.add(new Field("lastModified", String.valueOf(file.lastModified()),
                            Field.Store.YES, Field.Index.NOT_ANALYZED));
 
