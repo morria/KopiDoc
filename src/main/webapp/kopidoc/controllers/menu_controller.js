@@ -26,6 +26,8 @@ $.Controller.extend('kopidoc.Controllers.Menu',
                                                          classPath: classPath}, 
                                                         this.callback('list'));
  	   }
+
+     $(window).bind('keypress', function(e) { console.log(e); });
  },
 
  /**

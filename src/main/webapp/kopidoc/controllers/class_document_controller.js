@@ -56,6 +56,8 @@ show: function( document ){
         el.attr('href', docSource);
         el.attr('target', '_NEW');
         return true;
+
+        // Code removed since javadoc tries to bust out of its iframe
 /*
         var docId = qualifiedClassName.replace(new RegExp('\\.','g'),'_');
 
@@ -69,6 +71,10 @@ show: function( document ){
         $('#'+docId+" iframe").append($('<a href="'+docSource+'">'+docSoruce+'</a>'));
         $(window).unbind('beforeunload');
 */
+
+    }
+    else {
+        $.cometd.publish('/service/getClass', { qualifiedClassName: qualifiedClassName });
     }
 
     return false;
@@ -79,23 +85,39 @@ getDocumentationSource: function(packageName, className) {
     console.log(packageName);
 
     if(packageName.match(/^java\./))
-        return this.buildJavadocURL("http://download.oracle.com/javase/6/docs/api/" ,
+        return this.buildJavadocURL("http://download.oracle.com/javase/6/docs/api" ,
                                     packageName, className);
 
     if(packageName.match(/^com\.sun\.javadoc/))
-        return this.buildJavadocURL("http://download.oracle.com/javase/1.4.2/docs/tooldocs/javadoc/doclet/",
+        return this.buildJavadocURL("http://download.oracle.com/javase/1.4.2/docs/tooldocs/javadoc/doclet",
                                     packageName, className);
 
     if(packageName.match(/^org\.codehaus\.jackson/))
-        return this.buildJavadocURL("http://jackson.codehaus.org/1.6.2/javadoc/",
+        return this.buildJavadocURL("http://jackson.codehaus.org/1.6.2/javadoc",
                                     packageName, className);
 
     if(packageName.match(/^org\.apache\.lucene/))
-        return this.buildJavadocURL("http://lucene.apache.org/java/3_0_2/api/all/",
+        return this.buildJavadocURL("http://lucene.apache.org/java/3_0_2/api/all",
                                     packageName, className);
 
     if(packageName.match(/^org\.cometd\.bayeux/))
         return this.buildJavadocURL("http://download.cometd.org/bayeux-api-2.0.beta0-javadoc",
+                                    packageName, className);
+
+    if(packageName.match(/^org\.joda/))
+        return this.buildJavadocURL("http://joda-time.sourceforge.net/apidocs",
+                                    packageName, className);
+
+    if(packageName.match(/^org\.postgres/))
+        return this.buildJavadocURL("http://jdbc.postgresql.org/documentation/publicapi",
+                                    packageName, className);
+
+    if(packageName.match(/^org\.apache\.solr/))
+        return this.buildJavadocURL("http://lucene.apache.org/solr/api",
+                                    packageName, className);
+
+    if(packageName.match(/^org\.apache\.thrift/))
+        return this.buildJavadocURL("http://sundresh.org/docs/thrift-0.2.0-javadoc/",
                                     packageName, className);
 
     return null;
@@ -103,7 +125,7 @@ getDocumentationSource: function(packageName, className) {
 
 buildJavadocURL: function(root, packageName, className)
 {
-    return root
+    return root + "/"
         + packageName.replace(new RegExp('\\.','g'),"/")+"/" 
         + className + ".html";
 },

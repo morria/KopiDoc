@@ -9,6 +9,7 @@ import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Parameter;
 import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
+import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.JsonSerializer;
@@ -20,69 +21,86 @@ import org.codehaus.jackson.map.SerializerProvider;
 public class JsonRootDocSerializer
   extends JsonSerializer<RootDoc>
 {
+  private static Logger logger = Logger.getLogger(JsonRootDocSerializer.class.getName());
+
   public void serialize(RootDoc rootDoc, JsonGenerator gen, SerializerProvider provider)
     throws IOException, JsonProcessingException 
   {
+    gen.writeStartObject();
+
     ClassDoc[] classDocSet = rootDoc.specifiedClasses();
 
     if(classDocSet.length < 1)
+    {
+      logger.debug("Document contains no class");
+      gen.writeEndObject();
       return;
+    }
 
     ClassDoc classDoc = classDocSet[0];
 
-    gen.writeStartObject();
+    // Class Name
+    gen.writeStringField("className",classDoc.qualifiedName());
+
+    // Comments
+    gen.writeStringField("comment",classDoc.commentText());
+    for(Tag tag : classDoc.tags())
+      gen.writeStringField(tag.kind(), tag.text());
+
+    // Class Qualifiers
+    gen.writeBooleanField("isAbstract", classDoc.isAbstract());
+    gen.writeBooleanField("isExternalizable", classDoc.isExternalizable());
+    gen.writeBooleanField("isSerializable", classDoc.isSerializable());
+    
+    // Super-Class
+    if(classDoc.superclass() != null)
     {
-      // Class Name
-      gen.writeStringField("className",classDoc.qualifiedName());
-
-      // Comments
-      gen.writeStringField("comment",classDoc.commentText());
-      for(Tag tag : classDoc.tags())
-        gen.writeStringField(tag.kind(), tag.text());
-
-      // Class Qualifiers
-      gen.writeBooleanField("isAbstract", classDoc.isAbstract());
-      gen.writeBooleanField("isExternalizable", classDoc.isExternalizable());
-      gen.writeBooleanField("isSerializable", classDoc.isSerializable());
-
-      // Super-Class
       gen.writeFieldName("superclassType");
       serializeType(classDoc.superclassType(),gen, provider);
+    }
 
-      // Imported Classes
-      gen.writeFieldName("importedClasses");
-      gen.writeStartArray();
+    /*
+    // Imported Classes
+    gen.writeFieldName("importedClasses");
+    gen.writeStartArray();
+    if(classDoc.importedClasses() != null)
       for(ClassDoc importedClassDoc : classDoc.importedClasses())
-        gen.writeString(importedClassDoc.qualifiedName());
-      gen.writeEndArray();
+        if(importedClassDoc.qualifiedName() != null)
+          gen.writeString(importedClassDoc.qualifiedName());
+    gen.writeEndArray();
+    */
 
-      // Interfaces Implemented
+    // Interfaces Implemented
+    if(classDoc.interfaceTypes() != null)
+    {
       gen.writeFieldName("interfaceTypes");
       gen.writeStartArray();
       for(Type interfaceType : classDoc.interfaceTypes())
         serializeType(interfaceType, gen, provider);
       gen.writeEndArray();
+    }
 
-      // Fields
-      gen.writeFieldName("fields");
-      gen.writeStartArray();
+    // Fields
+    gen.writeFieldName("fields");
+    gen.writeStartArray();
+    if(classDoc.fields() != null)
       for(FieldDoc field : classDoc.fields())
         serializeField(field, gen, provider);
-      gen.writeEndArray();
+    gen.writeEndArray();
 
-      // Constructors
+    // Constructors
 
-      // Methods
-      gen.writeFieldName("methods");
-      gen.writeStartArray();
+    // Methods
+    gen.writeFieldName("methods");
+    gen.writeStartArray();
+    if(classDoc.methods() != null)
       for(MethodDoc method : classDoc.methods())
         serializeMethod(method, gen, provider);
-      gen.writeEndArray();
-
-      // Inner-Classes
+    gen.writeEndArray();
 
 
-    }
+    // Inner-Classes
+
     gen.writeEndObject();
   }
 

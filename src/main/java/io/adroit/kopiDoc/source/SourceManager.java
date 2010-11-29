@@ -121,7 +121,8 @@ public class SourceManager
       }
       else
         directory.mkdir();
-      
+
+      logger.debug("Using index directory " + directory.getAbsolutePath());
       Directory indexDirectory = FSDirectory.open(directory);
       
       return indexDirectory;
@@ -188,8 +189,17 @@ public class SourceManager
     String errorMessages = javadoc.execute(file.getAbsolutePath(), sourcePath, classPath);
     RootDoc rootDoc = javadoc.getRootDoc();
 
+    if(rootDoc == null)
+    {
+      logger.info("Javadoc parse failure");
+      return false;
+    }
+
     document =
       RootDocDocumentFactory.getDocument(file, sourcePath, rootDoc, errorMessages);
+
+    if(document == null) 
+      return false;
 
     boolean success = 
       addDocumentToIndex(document);

@@ -35,6 +35,9 @@ public class RootDocDocumentFactory
   {
     String jsonDoc = getJsonFromRootDoc(rootDoc);
 
+    if(jsonDoc == null)
+      return null;
+
     ClassDoc[] classDocSet = rootDoc.specifiedClasses();
 
     if(classDocSet.length < 1) return null;
@@ -68,13 +71,14 @@ public class RootDocDocumentFactory
     serializer.addGenericMapping(RootDoc.class, new JsonRootDocSerializer());
     ObjectMapper mapper = new ObjectMapper();
     mapper.setSerializerFactory(serializer);
-
     try {
-      return mapper.writeValueAsString(rootDoc); 
+      String value = mapper.writeValueAsString(rootDoc); 
+      return value;
     }
-    catch(IOException e)
+    catch(Exception e)
     {
       logger.error(e.toString());
+      Thread.currentThread().dumpStack();
       return null;
     }
   }
