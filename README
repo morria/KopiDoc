@@ -1,0 +1,41 @@
+Once you have the source, it should build and run without much hackery
+assuming you have maven installed. Just go into KopiDoc and 
+
+         ./run.sh
+
+That'll do the work of downloading dependencies, building and running
+it. Once its running, you can go to http://localhost:8080/ in your 
+browser. If all goes well, you'll see a blank page. Hit the "?" key to
+bring up a panel for configuring sources. 
+
+To start, you might set the source path to be the KopiDoc
+sources. Assuming you put the sources in your home directory, you might
+set it to be
+
+    ~/KopiDoc/src/main/java
+
+and classPath to
+
+    ~/.m2/repository/javax/servlet/servlet-api/2.5/servlet-api-2.5.jar:~/Development/KopiDoc/lib/jnotify/jnotify-0.93.jar:~/.m2/repository/log4j/log4j/1.2.16/log4j-1.2.16.jar:~/.m2/repository/org/apache/commons/commons-io/1.3.2/commons-io-1.3.2.jar:~/.m2/repository/org/apache/lucene/lucene-core/3.0.2/lucene-core-3.0.2.jar:~/.m2/repository/org/codehaus/jackson/jackson-core-asl/1.6.2/jackson-core-asl-1.6.2.jar:~/.m2/repository/org/codehaus/jackson/jackson-jaxrs/1.6.2/jackson-jaxrs-1.6.2.jar:~/.m2/repository/org/codehaus/jackson/jackson-mapper-asl/1.6.2/jackson-mapper-asl-1.6.2.jar:~/.m2/repository/org/cometd/java/bayeux-api/2.0.0/bayeux-api-2.0.0.jar:~/.m2/repository/org/cometd/java/cometd-java-common/2.0.0/cometd-java-common-2.0.0.jar:~/.m2/repository/org/cometd/java/cometd-java-server/2.0.0/cometd-java-server-2.0.0.jar:~/.m2/repository/org/cometd/javascript/cometd-javascript-jquery/2.0.0/cometd-javascript-jquery-2.0.0.war:~/.m2/repository/org/eclipse/jetty/jetty-continuation/7.1.5.v20100705/jetty-continuation-7.1.5.v20100705.jar:~/.m2/repository/org/eclipse/jetty/jetty-util/7.1.5.v20100705/jetty-util-7.1.5.v20100705.jar:~/.m2/repository/org/mortbay/jetty/jetty/6.1.25/jetty-6.1.25.jar:~/.m2/repository/org/mortbay/jetty/jetty-util/6.1.25/jetty-util-6.1.25.jar:~/.m2/repository/org/mortbay/jetty/servlet-api/3.0.20100224/servlet-api-3.0.20100224.jar:~/.m2/repository/org/slf4j/slf4j-api/1.6.1/slf4j-api-1.6.1.jar:~/.m2/repository/org/slf4j/slf4j-simple/1.6.1/slf4j-simple-1.6.1.jar
+
+Yeah, that part sucks. Here's a quick pro-tip: for maven projects, run
+`mvn dependency:build-classpath` to get the runtime class path. You can
+also run the thing without setting a class-path, but KopiDoc won't be able
+to link against remote repositories.
+
+Once you have a sourcePath and classPath, you can run "Load Source". You
+won't see anything on the page, but the console that has "run.sh" running
+will show it scanning the documentation and adding it to the index. Once
+thats done running, hit reload and you should see a left-side panel of
+classes show up.
+
+Hitting "/" on the page will bring up a search input on the bottom
+right. As you type it'll search for your query and populate results. You
+can hit the up and down keys to navigate the results, or ctrl-n and ctrl-p
+to navigate. Once you select the source you want, hit enter to pull up its
+docs.
+
+When you want to view docs for an external dependency, it looks up the
+package name against an ugly hard-coded set if if-statements. You can edit
+those in src/main/webapp/kopidoc/controllers/class_document_controller.js
+in the getDocumentationSource method.
