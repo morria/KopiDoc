@@ -1,4 +1,13 @@
-<ol>
-  <%= $.View('//kopidoc/views/menu/list.ejs', {classTree: classTree}) %>
+<ol id="packageList">
+  <%= $.View('//kopidoc/views/menu/list', 
+                     {classTree: classTree , cache: false })%>
 </ol>
-
+<dl id="instructions">
+  <dt>/<dt>
+  <dd>Search</dd>
+  <dt>?</dt>
+  <dd>Config</dd>
+</dl>
+<div id="searchExplore">
+  <input type="text" />
+</div>

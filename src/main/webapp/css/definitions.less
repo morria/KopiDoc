@@ -18,3 +18,10 @@
   -webkit-box-shadow: @horizontal @vertical @blur @color;
    box-shadow: @horizontal @vertical @blur @color;
 }
+
+.boundWidth ( @width: 100% ) {
+    max-width: @width;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

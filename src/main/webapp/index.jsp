@@ -12,12 +12,13 @@
  <link rel="stylesheet/less" href="css/style.less" type="text/css" />
  <script type="text/javascript" src="http://lesscss.googlecode.com/files/less-1.0.35.min.js"></script>
   <script type="text/javascript">
+<!--
     less.env = "development";
     less.watch();
+-->
   </script>
 </head>
 <body>
-  <div id="main"></div>
   <script type='text/javascript' 
           src='steal/steal.js?kopidoc,development'>   
   </script>

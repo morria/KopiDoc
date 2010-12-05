@@ -1,0 +1,300 @@
+@sizeMenuWidth: 175px;
+@sizeMenuGutter: 10px;
+@sizeArticleMin: 450px;
+
+body {
+    text-align: left;
+    min-width: (@sizeMenuWidth + @sizeMenuGutter + @sizeArticleMin);
+}
+
+nav, header, section, article, details {
+    display: block;
+}
+
+nav#menu {
+    width: @sizeMenuWidth;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: inline-block;
+    z-index: 2;
+    overflow: auto;
+
+    ol#packageList {
+        margin-top: 25px;
+        li {
+            h2 {
+                font-size: 16px;
+            }
+        }
+    }
+
+    #instructions {
+        position: fixed;
+        bottom: 30px;
+        left: 10px;
+        font-size: 10px;
+        dt, dd {
+            display: inline;
+            color: white;
+        }
+        dd:not(:last-child) {
+            margin-right: 10px;
+        }
+        dt {
+            font-weight: bold;
+            font-size: 12px;
+        }
+    }
+
+    #searchExplore {
+        position: fixed;
+        bottom: 0px;
+        left: 0px;
+
+        input {
+            width: (@sizeMenuWidth - 20px);
+            border: 0;
+            outline: 0;
+            .roundedCorners(5px);
+            padding: 2px 2px 2px 2px;
+            margin: 10px 8px 10px 8px;
+        }
+    }
+}
+
+article {
+    padding: 10px 10px 10px @sizeMenuGutter;
+    margin-left: @sizeMenuWidth;
+    margin-top: 35px;
+    display: block;
+    min-width: @sizeArticleMin;
+
+    >header {
+        z-index: 1;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 25px;
+        line-height: 25px;
+        width: 100%;
+        min-width: @sizeArticleMin;
+
+        h1 {
+            padding-left: (@sizeMenuWidth + @sizeMenuGutter);
+            display: inline-block;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .packageName {
+            float: right;
+            padding-right: 10px;
+        }
+    }
+
+    >nav {
+        position: fixed;
+        top: 25px;
+        right: 0px;
+        ul {
+            li {
+                display: inline;
+                font-size: 10px;
+                margin-right: 10px;
+            }
+        }
+    }
+
+    #classLocation {
+        margin-top: -18px;
+        margin-bottom: 20px;
+
+        div {
+            margin-bottom: 8px;
+            label { 
+                min-width: 65px;
+                display: inline-block;
+            }
+            ol, ul {
+                display: inline;
+                white-space: nowrap;
+                li {
+                    display: inline;
+                }
+            }
+
+            ol.chain li:not(:last-child):after {
+                content: " ⇨";
+            }
+
+            ul.list li:not(:last-child):after {
+                content: ", ";
+            }
+        }
+    }
+
+    >details { 
+    }
+
+    >section {
+        padding-top: 20px;
+
+        >header {
+            position: relative;
+            .roundedCorners(5px);
+            white-space: nowrap;
+            overflow: hidden;
+            padding: 0;
+            margin: 0 0 12px 0;
+            height: 20px;
+            line-height: 20px;
+            padding: 0 4px 0 4px;
+
+            h2 {
+                display: inline-block;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            .filters {
+                float: right;
+                padding: 0; 
+                margin: 0;
+                li {
+                    display: inline;
+                    border-left: 2px solid white;
+                    padding: 0 2px 0 6px;
+                }
+            }
+        }
+        >ol {
+            min-width: 200px;
+            margin-left: 10px;
+
+            li {
+                position: relative;
+                >header {
+                    margin: 5px 0px 20px 0px;
+                    padding: 5px 5px 5px 5px;
+                    height: 13px;
+                    line-height: 13px;
+                    .roundedCorners(7px);
+                    .boundWidth(100%);
+
+                    >* {
+                        display: inline-block;
+                    }
+                    
+                    .parameterList {
+                    }
+                }
+
+                .methodSignature {
+                    position: absolute;
+                    top: 25px;
+                    left: 15px;
+                    white-space: nowrap;
+                    font-size: 14px;
+
+                    >a[rel=type] {
+                        display: inline;
+                    }
+
+                    .parameterList {
+                        display: inline;
+                    }
+
+                }
+
+                .throwList {
+                    position: absolute;
+                    top: 25px;
+                    right: 0px;
+                }
+                >div.extraInfo {
+                    display: none;
+                    margin-left: 10px;
+
+                    section {
+                        margin-top: 10px;
+                        h5 {
+                            font-size: 14px;
+                            font-variant: small-caps;
+                        }
+                        ol, ul {
+                            li {
+                                margin-bottom: 3px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+details.commentBlock {
+    font-family: Monospace;
+    margin: 5px 0 5px 0;
+}
+
+details.commentSummary {
+    display: inline;
+}
+
+ol.parameterList {
+    .boundWidth(150px);
+    li { 
+        display: inline; 
+        a {
+        }
+    }
+    li:not(:last-child):after { content: ", "; }
+}
+ol.parameterList:before { content: "("; }
+ol.parameterList:after { content: ")"; }
+
+
+ul.throwList {
+    white-space: nowrap;
+    font-size: 10px;
+    li { display: inline; }
+    li:not(:last-child):after { content: ", "; }
+}
+
+ul.throwList:before { content: "↪"; }
+
+
+select {
+    background: inherit;
+    .roundedCorners(0);
+    -webkit-appearance: listbox;
+    border: none;
+    outline: none;
+}
+
+button {
+    background: inherit;
+    border: none;
+    .roundedCorners(0);
+    -webkit-appearance: none;
+}
+
+input[type=checkbox] {
+    background: inherit;
+    -webkit-appearance: none;
+}
+
+.returnedBy { .mappingArrow; }
+.returnedBy:after { content: "⇐"; }
+
+.describedBy { .mappingArrow; }
+.describedBy:after { content: "↤"; }
+
+
+#repositoryConfig {
+    position: fixed;
+    left: 400px;
+    top: 200px;
+}

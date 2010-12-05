@@ -83,69 +83,6 @@
         </section>
       </div> <!-- .extraInfo -->
     </li>
-  </ol>
-</section>
-
-
-
-
-
-
-
-
-<section class="classElementList">
-  <div class="classElementHeader">
-    <h2><a name="constructors">Constructors</a></h2>
-    <div class="classElementOptions">
-      <select>
-        <option>Any Scope</option>
-      </select>
-      <select>
-        <option>Any Parameter</option>
-      </select>
-      <input type="checkbox" class="abstract" />
-      <input type="checkbox" class="static" />
-      <input type="checkbox" class="final" />
-    </div>
-  </div>
-  <ol class="elementList">
-    <% for(i in constructors) { %>
-    <% var constructor = constructors[i]; %>
-    <% var constructorName = constructor.name.split('.').slice(-1)[0] %>
-    <li>
-      <header>
-        <h3 class="constructorName"></h3>
-        <ol class="parameters">
-        </ol>
-        <details open="open" class="commentTerse">
-          <summary></summary> 
-        </details>
-        <% if(constructor.isFinal) { %><span class="qualifier final">final</span> <%}%>
-      </header>
-      <ul class="throws">
-          <!-- ... -->
-      </ul>
-      <details open="open" class="comment">
-        <summary></summary> 
-      </details>      
-      <section>
-        <h4>Parameters</h4>
-        <ol class="parameters">
-          <% for(var i in constructor.parameters) { %>
-          <li>
-            <%= $.View('//kopidoc/views/class_document/showType', 
-                                {type: constructor.parameters[i].type , title: null })%>
-             <span class="name"><%= constructor.parameters[i].name %></span>
-          </li>
-          <%}%>
-        </ol>
-      </section>
-      <section>
-        <h4>Throws</h4>
-        <ol class="throws">
-        </ol>
-      </section>
-    </li>
     <% } %>
   </ol>
 </section>

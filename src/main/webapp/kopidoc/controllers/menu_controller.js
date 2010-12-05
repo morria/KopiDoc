@@ -15,7 +15,7 @@ $.Controller.extend('kopidoc.Controllers.Menu',
  /**
  * When the page loads, gets all menus to be displayed.
  */
- load: function(){
+ load: function() {
 
      /*
      var sourcePath = localStorage.getItem('sourcePath');
@@ -23,27 +23,22 @@ $.Controller.extend('kopidoc.Controllers.Menu',
      */
 
 	   if(!$("#menu").length) {
-	       $('#main').append($('<section/>').attr('id','menu').attr('class','list menu'));
-
-         var fSuccess = this.callback('list');
-         $.cometd.addListener('/getClassList', function(classList) { fSuccess(classList); });
-         $.cometd.publish('/service/getClassList', {} );
-         $.cometd.addListener('/addSources',  function(message) { 
-             $.cometd.publish('/service/getClassList', {} );
+       $('body').prepend($('<nav/>').attr('id','menu'));
+       var fSuccess = this.callback('list');
+       $.cometd.addListener('/getClassList', function(classList) { fSuccess(classList); });
+       $.cometd.publish('/service/getClassList', {} );
+       $.cometd.addListener('/addSources',  function(message) { 
+           $.cometd.publish('/service/getClassList', {} );
          } );
-
-         /*
-         $.cometd.publish('/service/addSources', { sourcePath:  sourcePath,
-                                                   classPath: classPath});
-         */
  	   }
- },
+},
 
- /**
- * Displays a list of class_documents and the submit form.
- * @param {Array} class_documents An array of kopidoc.Models.ClassDocument objects.
- */
- list: function( message ) {
+/**
+  * Displays a list of class_documents and the submit form.
+  * @param {Array} class_documents An array of kopidoc.Models.ClassDocument objects.
+  */
+list: function( message ) {
+    this.view.cache = false;
      var classList = message.data.classList;
      var tree = Object();
      for(var i in classList) {
@@ -57,9 +52,10 @@ $.Controller.extend('kopidoc.Controllers.Menu',
 	   $('#menu').html(this.view('init', {classTree: tree} ));
  },
 
-'.menuItem.class click': function(el) {
-    var className = $.trim(el.attr('rel'));
+'a[rel=type] click': function(el) {
+    var className = $.trim(el.attr('data-qualifiedName'));
     $.cometd.publish('/service/getClass', { qualifiedClassName: className });
+    return false;
 },
 
  /**

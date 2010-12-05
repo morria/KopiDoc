@@ -206,6 +206,7 @@ steal.plugins("jquery").then(function( $ ) {
 	var $view, render, checkText, get;
 
 	$view = $.View = function( view, data, helpers, callback ) {
+
 		var suffix = view.match(/\.[\w\d]+$/),
 			type, el, id, renderer, url = view;
 		if ( typeof helpers === 'function' ) {
@@ -231,19 +232,21 @@ steal.plugins("jquery").then(function( $ ) {
 
 		//get the renderer function
 		renderer =
-		$.View.cached[id] ? // is it cached?
+		false && $.View.cached[id] ? // is it cached?
 		$.View.cached[id] : // use the cached version
-		((el = document.getElementById(view)) ? //is it in the document?
+		((el = document.getElementById(view)) && false ? //is it in the document?
 		type.renderer(id, el.innerHTML) : //use the innerHTML of the elemnt
 		get(type, id, url, data, helpers, callback) //do an ajax request for it
 		);
+
 		// we won't always get a renderer (if async ajax)
 		return renderer && render(renderer, type, id, data, helpers, callback);
 	};
+
 	// caches the template, renders the content, and calls back if it should
 	render = function( renderer, type, id, data, helpers, callback ) {
 		var res, stub;
-		if ( $.View.cache ) {
+		if ( $.View.cache && false ) {
 			$.View.cached[id] = renderer;
 		}
 		res = renderer.call(type, data, helpers);
@@ -314,7 +317,7 @@ steal.plugins("jquery").then(function( $ ) {
 		 * @attribute cache
 		 * Should the views be cached or reloaded from the server. Defaults to true.
 		 */
-		cache: true,
+		cache: false,
 		/**
 		 * @function register
 		 * Registers a template engine to be used with 

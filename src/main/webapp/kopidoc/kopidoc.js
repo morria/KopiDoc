@@ -10,4 +10,5 @@ steal.plugins(
 	  .resources()					// 3rd party script's (like jQueryUI), in resources folder
 	  .models()
 	  .controllers('menu','class_document','keyboard')
-	  .views();
+	  .views()
+    .then(function() { $.View.cache = false; });

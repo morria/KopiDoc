@@ -1,30 +1,47 @@
-<section class="methods">
+<section>
   <header>
     <h2>Fields</h2>
+    <ul class="filters">
+      <li>
+        <select>
+          <option>All Scopes</option>
+          <option>Public</option>
+          <option>Private</option>
+          <option>Protected</option>
+        </select>
+      </li>
+      <li>
+        <select>
+          <option>All Types</option>
+          <option>String</option>
+          <option>Location</option>
+        </select>
+      </li>
+      <li>
+        <button>Show Inherited</button>
+      </li>
+      <li>
+        <input type="checkbox" class="abstract" />
+        <input type="checkbox" class="static" />
+        <input type="checkbox" class="final" />
+      </li>
+    </ul>
   </header>
-  <ol class="methodList">
+  <ol>
     <% for(i in fields) { %>
+    <% var field = fields[i]; %>
+    <% var fieldName = field.name.split('.').slice(-1)[0] %>
     <li>
-      <% var field = fields[i]; %>
-      <div class="method">
-        <% var fieldName = field.name.split('.').slice(-1)[0] %>
-        <header>
-          <div class="qualifierList">
-            <% if(field.isPublic) { %><span class="qualifier final">public</span> <%}%>
-            <% if(field.isProtected) { %><span class="qualifier final">protected</span> <%}%>
-            <% if(field.isPrivate) { %><span class="qualifier final">private</span> <%}%>
-            <% if(field.isFinal) { %><span class="qualifier final">final</span> <%}%>
-          </div>
-          <span class="returnType">
-            <%= $.View('//kopidoc/views/class_document/showType', {type: field.type,
-                                                                            title: null })%>
-          </span>
-          <span class="fieldName"><%= fieldName %></span>
+      <header class="protected">
+        <label><%= fieldName %></label>
+        <%= $.View('//kopidoc/views/class_document/showType', {type: field.type,
+                             title: null, cache: false })%>
+         <%= field.comment %>
+        <% if(field.isPublic) { %><span class="final"></span> <%}%>
+        <% if(field.isProtected) { %><span class="final"></span> <%}%>
+        <% if(field.isPrivate) { %><span class="final"></span> <%}%>
+        <% if(field.isFinal) { %><span class="final"></span> <%}%>
       </header>
-      <details open="open" class="comment">
-        <summary><%= field.comment %></summary> 
-      </details>
-      </div>
     </li>
     <% } %>
   </ol>

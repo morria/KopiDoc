@@ -470,7 +470,7 @@ steal.plugins('jquery/view', 'jquery/lang/rsplit').then(function( $ ) {
 	 * 
 	 */
 	EJS.options = {
-		cache: true,
+		cache: false,
 		type: '<',
 		ext: '.ejs'
 	};

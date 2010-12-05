@@ -80,7 +80,7 @@ $.Controller.extend('kopidoc.Controllers.ClassDocument',
  */
  load: function(){
 	   if(!$("#class_document").length) {
-         $('#main').append($('<div />').attr('id','class_document'));
+         $('body').append($('<article />').attr('id','class_document'));
          var fSuccess = this.callback('show');
          $.cometd.addListener('/getClass', function(classDoc) { fSuccess(classDoc); });
  	   }
@@ -99,16 +99,19 @@ show: function( document ){
     classDoc.shortName = splitName[splitName.length-1];
     classDoc.packageName = splitName.slice(0,splitName.length-1).join('.');
 
-    var classId = classDoc.className.replace(new RegExp('\\.','g'),'_');
-
-    $('#class_document').html($('<section />').attr('id', classId)
-                                   .attr('class', 'list document'));
-
-	  $('#'+classId).html(this.view('show', {document: classDoc} ));
+     this.view.cache = false;
+	  $('#class_document').html(this.view('show1', {document: classDoc, cache: false} ));
  },
 
 'a.type click': function( el ) {
     return kopidoc.Controllers.ClassDocument.loadDocumentation(el);
+},
+
+'section header click': function( el ) {
+    console.log(el);
+    console.log(el.children('.extraInfo'));
+    el.parent().children('.extraInfo').toggle();
+
 },
 
  /**

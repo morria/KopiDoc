@@ -1,0 +1,56 @@
+<header>
+  <h1><%= document.shortName %></h1>
+  <span class="packageName"><%= document.packageName %></span>
+  <span title="final" class="final" />
+  <span title="abstract" class="abstract" />
+  <span title="static" class="static" />
+</header>
+<nav>
+  <ul>
+    <li><a href="#constructors">Constructors</a></li>
+    <li><a href="#methods">Methods</a></li>
+    <li><a href="#fields">Fields</a></li>
+  </ul>
+</nav>
+<div id="classLocation">
+  <div class="inheritance">
+    <label for="inheritanceChain">Inheritance</label>
+    <ol id="inheritanceChain" class="chain">
+      <% if( document.superclassType ) { %>
+        <li><%= $.View('//kopidoc/views/class_document/showType', 
+                                  {type: document.superclassType , title: null, cache: false })%></li>
+      <%}%>
+    </ol>
+  </div>
+  <div class="implements">
+    <label for="implementsList">Implements</label>
+    <ul id="implementsList" class="list">
+      <% for(i in document.interfaceTypes) { %>
+      <li>
+        <%= $.View('//kopidoc/views/class_document/showType', 
+                            {type: document.interfaceTypes[i], title: null, cache: false })%>
+      </li>
+      <% } %>
+    </ul>
+  </div>
+  <div class="subClasses">
+    <label for="subClassList">Subclasses</label>
+    <ul class="list">
+    </ul>
+  </div>
+</div>
+<details open="open" class="commentBlock">
+  <%= document.comment %>
+</details>
+
+<%= $.View('//kopidoc/views/class_document/showConstructors1',
+                     { constructors: document.constructors, cache: false }) %>
+
+
+<%= $.View('//kopidoc/views/class_document/showMethods', 
+                    { methods: document.methods, 
+                      cache: false
+                      }) %>
+
+<%= $.View('//kopidoc/views/class_document/showFields',
+                    { fields: document.fields, cache: false }) %>

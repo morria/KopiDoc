@@ -1,9 +1,17 @@
 <% for(var packageName in classTree) { %>
-   <% for(var i in classTree[packageName]) { %>
-     <% var className = classTree[packageName][i]; %>
-     <li class="menuItem class" rel="<%= packageName+"."+className %>">
-       <span class="packageName"><%= packageName %></span>
-       <span class="className"><%= className %></span>
-     </li>
-  <%}%>
+  <li>
+    <h2><%= packageName %></h2>
+    <ul>
+      <% for(var i in classTree[packageName]) { %>
+        <% var className = classTree[packageName][i]; %>
+        <li>
+          <a rel="type" 
+               href="#"
+               data-qualifiedName="<%= packageName+"."+className %>">
+            <%= className %>
+          </a>
+        </li>
+      <%}%>
+    </ul>
+  </li>
 <%}%>
