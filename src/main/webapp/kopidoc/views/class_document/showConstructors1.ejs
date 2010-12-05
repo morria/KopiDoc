@@ -49,8 +49,17 @@
         <% if(constructor.isFinal) { %><span class="final"></span> <%}%>
       </header>
       <ul class="throwList">
-        <li><a rel="type" class="type" href="#">Exception</a></li>
-        <li><a rel="type" class="type" href="#">UnknownLocationException</a></li>
+        <% if(typeof constructor.thrownExceptions != 'undefined' &&
+                     0 != constructor.thrownExceptions.length) { %>
+        <% for(var i in constructor.thrownExceptions) { %>
+        <li>
+            <%= $.View('//kopidoc/views/class_document/showType1', 
+                           {type: constructor.thrownExceptions[i], title: null, cache: false  })%>
+        </li>
+        <%} %>
+        <% } else { %>
+          <li>none</li>
+        <% } %>
       </ul>
       <div class="extraInfo">
         <details class="commentBlock">
@@ -75,14 +84,23 @@
         <section>
           <h5>Throws</h5>
           <ul>
+            <% if(typeof constructor.thrownExceptions != 'undefined' &&
+                     0 != constructor.thrownExceptions.length) { %>
+            <% for(var i in constructor.thrownExceptions) { %>
             <li>
-              <a rel="type" href="#" class="type">UnknownLocationException</a>
+              <%= $.View('//kopidoc/views/class_document/showType1', 
+              {type: constructor.thrownExceptions[i], title: null, cache: false  })%>
               <span class="describedBy"></span>
               <details class="commentSummary">
                 <!-- ... -->
               </details>
             </li>
+            <%} %>
+            <% } else { %>
+              <li>none</li>
+            <% } %>
           </ul>
+
         </section>
       </div> <!-- .extraInfo -->
     </li>

@@ -63,7 +63,17 @@
         </ol>
       </div>
       <ul class="throwList">
-        <li><a rel="type" class="type" href="#">UnknownLocationException</a></li>
+        <% if(typeof method.thrownExceptions != 'undefined'  &&
+                 0 != method.thrownExceptions.length) { %>
+        <% for(var i in method.thrownExceptions) { %>
+        <li>
+            <%= $.View('//kopidoc/views/class_document/showType1', 
+                           {type: method.thrownExceptions[i], title: null, cache: false  })%>
+        </li>
+        <%} %>
+        <% } else { %>
+        <li>none</li>
+        <% } %>
       </ul>
       <div class="extraInfo">
         <details class="commentBlock">
@@ -99,13 +109,21 @@
         <section>
           <h5>Throws</h5>
           <ul>
+            <% if(typeof method.thrownExceptions != 'undefined'  &&
+                     0 != method.thrownExceptions.length) { %>
+            <% for(var i in method.thrownExceptions) { %>
             <li>
-              <a rel="type" href="#" class="type">UnknownLocationException</a>
+              <%= $.View('//kopidoc/views/class_document/showType1', 
+              {type: method.thrownExceptions[i], title: null, cache: false  })%>
               <span class="describedBy"></span>
               <details class="commentSummary">
-                if the location cannot be found
+                comment
               </details>
             </li>
+            <%} %>
+            <% } else { %>
+              <li>none</li>
+            <% } %>
           </ul>
         </section>
       </div> <!-- .extraInfo -->
