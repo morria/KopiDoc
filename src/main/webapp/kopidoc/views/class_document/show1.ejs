@@ -16,9 +16,9 @@
   <div class="inheritance">
     <label for="inheritanceChain">Inheritance</label>
     <ol id="inheritanceChain" class="chain">
-      <% if( document.superclassType ) { %>
+      <% for( var i in document.inheritance.reverse()) { %>
         <li><%= $.View('//kopidoc/views/class_document/showType1', 
-                                  {type: document.superclassType , title: null, cache: false })%></li>
+                                  {type: document.inheritance[i] , title: null, cache: false })%></li>
       <%}%>
     </ol>
   </div>

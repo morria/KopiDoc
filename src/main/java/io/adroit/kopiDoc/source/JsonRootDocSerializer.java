@@ -54,11 +54,18 @@ public class JsonRootDocSerializer
     gen.writeBooleanField("isSerializable", classDoc.isSerializable());
     
     // Super-Class
+    gen.writeFieldName("inheritance");
+    gen.writeStartArray();
     if(classDoc.superclass() != null)
     {
-      gen.writeFieldName("superclassType");
-      serializeType(classDoc.superclassType(),gen, provider);
+      ClassDoc superDoc = classDoc.superclass();
+      while(true) {
+        serializeType(superDoc,gen, provider);
+        if(null == (superDoc = superDoc.superclass()))
+          break;
+      }
     }
+    gen.writeEndArray();
 
     /*
     // Imported Classes
