@@ -11,7 +11,7 @@ $.Controller.extend('kopidoc.Controllers.ClassDocument',
 	  onDocument: true,
 
     loadDocumentation: function(el) {
-        var qualifiedClassName = el.attr('rel');
+        var qualifiedClassName = el.attr('data-qualifiedName');
         var packageName = qualifiedClassName.split('.').slice(0,-1).join('.');
         var className = qualifiedClassName.split('.').slice(-1)[0];
         var docSource = 
@@ -103,7 +103,7 @@ show: function( document ){
 	  $('#class_document').html(this.view('show1', {document: classDoc, cache: false} ));
  },
 
-'a.type click': function( el ) {
+'a[rel=type] click': function( el ) {
     return kopidoc.Controllers.ClassDocument.loadDocumentation(el);
 },
 

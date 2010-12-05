@@ -17,7 +17,7 @@ $.Controller.extend('kopidoc.Controllers.Keyboard',
  */
  load: function(){
 	   if(!$("#keyboard").length)
-	       $(document.body).append($('<div/>').attr('id','keyboard'));
+	       $('body').append($('<div/>').attr('id','keyboard'));
 
      this.startKeypressListener();
 
@@ -59,7 +59,7 @@ showRepositoryConfig: function() {
 
 '#buttonClose click': function() {
     this.startKeypressListener();
-    $('#repositoryConfig').hide(500);
+    $('#repositoryConfig').hide();
 },
 
 '#classPath change': function() {
@@ -109,7 +109,7 @@ showSearch: function() {
             }
         });
     }
-    $('#searchWindow').show(500);
+    $('#searchWindow').show();
     $('#searchInput').focus();
     $('#searchInput').val('');
 },
@@ -129,7 +129,7 @@ lastSearchQuery: null,
 },
 
 '#searchInput blur':function(event) {
-    $('#searchWindow').hide(500);
+    $('#searchWindow').hide();
     $('#searchResult').html('');
     this.startKeypressListener();
 },
@@ -139,7 +139,15 @@ searchResult: function(data) {
     $('#searchResult').html('');
     for(var i in searchResult)
     {
-        var item = $('<li><a class="type" href="#" rel="'+searchResult[i]+'">'+searchResult[i]+'</a></li>');
+        var nodeText = '<li>'
+            + '<a rel="type" href="#"'
+            +    ' data-qualifiedName="'+searchResult[i]+'">';
+        var packageName = searchResult[i].split('.').slice(0,-1).join('.');
+        nodeText += '<span class="tinyPackageName">'+packageName+'.</span>';
+        nodeText += searchResult[i].split('.').slice(-1)[0];
+        nodeText += '</a></li>';
+
+        var item = $(nodeText);
         if(0 == i)
             item.addClass('selected');
         $('#searchResult').append(item);

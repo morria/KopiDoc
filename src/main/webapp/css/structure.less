@@ -25,7 +25,7 @@ nav#menu {
         margin-top: 25px;
         li {
             h2 {
-                font-size: 16px;
+                font-size: 12px;
             }
         }
     }
@@ -314,4 +314,45 @@ input[type=checkbox] {
     position: fixed;
     left: 400px;
     top: 200px;
+}
+
+#searchWindow {
+    z-index: 10;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+
+    input {
+        width: 300px;
+
+        /* structure */
+        .roundedCorners(3px);
+        padding: 3px 3px 3px 3px;
+        width: 300px;
+        
+        /* look+feel */
+        .gradientBackground(#eee,#fff);
+        border: 1px solid #ddd;
+        color: #555;
+        text-shadow: #ccc 1px 1px 1px;
+
+        /* typography */
+        font-size: 14pt;
+    }
+
+    #searchResult {
+        margin-botom: 10px;
+        background-color: rgba(255,255,255,64);
+        li {
+            padding: 4px 2px 4px 4px;
+
+            .tinyPackageName {
+                font-size: 10px;
+            }
+        }
+        li.selected {
+            background-color: #f0f0f0;
+        }
+    }
+
 }
