@@ -99,7 +99,7 @@ show: function( document ){
     classDoc.shortName = splitName[splitName.length-1];
     classDoc.packageName = splitName.slice(0,splitName.length-1).join('.');
 
-     this.view.cache = false;
+    this.view.cache = false;
 	  $('#class_document').html(this.view('show1', {document: classDoc, cache: false} ));
  },
 
@@ -108,10 +108,74 @@ show: function( document ){
 },
 
 'section header click': function( el ) {
-    console.log(el);
-    console.log(el.children('.extraInfo'));
-    el.parent().children('.extraInfo').toggle();
+    el.parent().children('.extraInfo').toggle(100);
+},
 
+'.filterScope mousedown': function(el) {
+    if(1 == el.children().length)
+        el.parents('section').find('ol li header').each(function(i,head) {
+            if(0 == el.children('option[value='+$(head).attr('class')+']').length)
+                el.append(new Option($(head).attr('class'), $(head).attr('class')));
+        });
+},
+
+'.filterScope change': function(el) {
+    el.parents('section').find('ol li header').each(function(i, head) {
+        if('' == el.val() || $(head).hasClass(el.val()))
+            $(head).parent('li').show(100);
+        else
+            $(head).parent('li').hide(100);
+    });
+},
+
+'.filterParameters mousedown': function(el) {
+    if(1 == el.children().length)
+        el.parents('section').find('ol li .parameterList li a[rel=type]').each(function(i,type) {
+            if(0 == el.children('option[value='+$(type).attr('data-qualifiedName')+']').length) {
+                var qualifiedName = $(type).attr('data-qualifiedName');
+                var simpleName = qualifiedName.split('.').slice(-1)[0];
+                el.append(new Option(simpleName, qualifiedName));
+            }
+        });
+},
+
+'.filterParameters change': function(el) {
+    var lookupName = el.val();
+    el.parents('section').find('ol li .parameterList').each(function(i, pList) {
+        var pListContains = ('' == el.val());
+        $(pList).find('li a[rel=type]').each(function(i,a) {
+            console.log($(a).attr('data-qualifiedName'));
+
+            if($(a).attr('data-qualifiedName') == lookupName)
+                pListContains = true;
+        });
+
+        if(pListContains)
+            $(pList).parents('li').show(100);
+        else
+            $(pList).parents('li').hide(100);
+    });
+},
+
+'.filterTypes mousedown': function(el) {
+    if(1 == el.children().length)
+        el.parents('section').find('ol li .methodSignature >*[rel=type]').each(function(i,type) {
+            if(0 == el.children('option[value='+$(type).attr('data-qualifiedName')+']').length) {
+                var qualifiedName = $(type).attr('data-qualifiedName');
+                var simpleName = qualifiedName.split('.').slice(-1)[0];
+                el.append(new Option(simpleName, qualifiedName));
+            }
+        });
+},
+
+'.filterTypes change': function(el) {
+    var lookupName = el.val();
+    el.parents('section').find('ol li .methodSignature >*[rel=type]').each(function(i, sig) {
+        if(('' == el.val()) || ($(sig).attr('data-qualifiedName') == lookupName))
+            $(sig).parents('li').show(100);
+        else
+            $(sig).parents('li').hide(100);
+    });
 },
 
  /**

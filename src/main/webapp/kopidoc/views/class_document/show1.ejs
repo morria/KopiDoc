@@ -17,7 +17,7 @@
     <label for="inheritanceChain">Inheritance</label>
     <ol id="inheritanceChain" class="chain">
       <% if( document.superclassType ) { %>
-        <li><%= $.View('//kopidoc/views/class_document/showType', 
+        <li><%= $.View('//kopidoc/views/class_document/showType1', 
                                   {type: document.superclassType , title: null, cache: false })%></li>
       <%}%>
     </ol>
@@ -27,7 +27,7 @@
     <ul id="implementsList" class="list">
       <% for(i in document.interfaceTypes) { %>
       <li>
-        <%= $.View('//kopidoc/views/class_document/showType', 
+        <%= $.View('//kopidoc/views/class_document/showType1', 
                             {type: document.interfaceTypes[i], title: null, cache: false })%>
       </li>
       <% } %>
@@ -47,10 +47,10 @@
                      { constructors: document.constructors, cache: false }) %>
 
 
-<%= $.View('//kopidoc/views/class_document/showMethods', 
+<%= $.View('//kopidoc/views/class_document/showMethods1', 
                     { methods: document.methods, 
                       cache: false
                       }) %>
 
-<%= $.View('//kopidoc/views/class_document/showFields',
+<%= $.View('//kopidoc/views/class_document/showFields1',
                     { fields: document.fields, cache: false }) %>

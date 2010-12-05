@@ -7,14 +7,14 @@
       <% if(method.isStatic) { %><span class="qualifier static">static</span> <%}%>
     </div>
      <span class="returnType">
-     <%= $.View('//kopidoc/views/class_document/showType', {type: method.returnType,
+     <%= $.View('//kopidoc/views/class_document/showType1', {type: method.returnType,
                                                                                                     title: method['@return'] })%>
      </span>
      <span class="methodName"><%= methodName %></span>
      <ol class="parameters">
        <% for(var i in method.parameters) { %>
          <li>
-           <%= $.View('//kopidoc/views/class_document/showType', 
+           <%= $.View('//kopidoc/views/class_document/showType1', 
                            {type: method.parameters[i].type , title: null })%>
            <span class="name"><%= method.parameters[i].name %></span>
          </li>

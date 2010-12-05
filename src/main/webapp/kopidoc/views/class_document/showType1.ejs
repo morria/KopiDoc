@@ -1,5 +1,6 @@
 <% if(type.isPrimitive) {%>
-  <span class="type primitiveType">
+  <span rel="type" class="type primitiveType" 
+             data-qualifiedName="<%= type.qualifiedName %>">
 <% } else { %>
   <a rel="type" href="#" 
         title="<%= title ? type.qualifiedName + "\n" + title : type.qualifiedName %>"

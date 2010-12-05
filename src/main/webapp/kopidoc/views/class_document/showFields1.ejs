@@ -1,30 +1,30 @@
 <section>
+  <a name="fields" />
   <header>
     <h2>Fields</h2>
     <ul class="filters">
       <li>
-        <select>
-          <option>All Scopes</option>
-          <option>Public</option>
-          <option>Private</option>
-          <option>Protected</option>
+        <select class="filterScope">
+          <option value="">All Scopes</option>
         </select>
       </li>
       <li>
-        <select>
-          <option>All Types</option>
-          <option>String</option>
-          <option>Location</option>
+        <select class="filterTypes">
+          <option value="">All Types</option>
         </select>
       </li>
+      <!--
       <li>
-        <button>Show Inherited</button>
+        <button class="filterInherited">Show Inherited</button>
       </li>
+      -->
+      <!--
       <li>
         <input type="checkbox" class="abstract" />
         <input type="checkbox" class="static" />
         <input type="checkbox" class="final" />
       </li>
+      -->
     </ul>
   </header>
   <ol>
@@ -32,11 +32,15 @@
     <% var field = fields[i]; %>
     <% var fieldName = field.name.split('.').slice(-1)[0] %>
     <li>
-      <header class="protected">
+      <header class="<%= $.View('//kopidoc/views/class_document/showScope', 
+                                                   {public: field.isPublic,
+                                                    protected: field.isProtected,
+                                                    private: field.isPrivate} )%>">
         <label><%= fieldName %></label>
-        <%= $.View('//kopidoc/views/class_document/showType', {type: field.type,
+        <%= $.View('//kopidoc/views/class_document/showType1', {type: field.type,
                              title: null, cache: false })%>
-         <%= field.comment %>
+        <span class="describedBy"></span>
+        <%= field.comment %>
         <% if(field.isPublic) { %><span class="final"></span> <%}%>
         <% if(field.isProtected) { %><span class="final"></span> <%}%>
         <% if(field.isPrivate) { %><span class="final"></span> <%}%>

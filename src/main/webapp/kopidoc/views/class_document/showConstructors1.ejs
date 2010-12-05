@@ -1,30 +1,30 @@
 <section>
+  <a name="constructors" />
   <header>
     <h2>Constructors</h2>
     <ul class="filters">
       <li>
-        <select>
-          <option>All Scopes</option>
-          <option>Public</option>
-          <option>Private</option>
-          <option>Protected</option>
+        <select class="filterScope">
+          <option value="">All Scopes</option>
         </select>
       </li>
       <li>
-        <select>
-          <option>All Parameters</option>
-          <option>String</option>
-          <option>Location</option>
+        <select class="filterParameters">
+          <option value="">All Parameters</option>
         </select>
       </li>
+      <!--
       <li>
         <button>Show Inherited</button>
       </li>
+      -->
+      <!--
       <li>
         <input type="checkbox" class="abstract" />
         <input type="checkbox" class="static" />
         <input type="checkbox" class="final" />
       </li>
+      -->
     </ul>
   </header>
   <ol>
@@ -32,11 +32,14 @@
     <% var constructor = constructors[i]; %>
     <% var constructorName = constructor.name.split('.').slice(-1)[0] %>
     <li>
-      <header class="public">
+      <header class="<%= $.View('//kopidoc/views/class_document/showScope', 
+                                                   {public: constructor.isPublic,
+                                                    protected: constructor.isProtected,
+                                                    private: constructor.isPrivate} )%>">
         <ol class="parameterList">
           <% for(var i in constructor.parameters) { %>
           <li>
-            <%= $.View('//kopidoc/views/class_document/showType', 
+            <%= $.View('//kopidoc/views/class_document/showType1', 
                                {type: constructor.parameters[i].type , title: null, cache: false })%>
           </li>
           <%}%>
@@ -58,7 +61,7 @@
           <ol>
             <% for(var i in constructor.parameters) { %>
             <li>
-              <%= $.View('//kopidoc/views/class_document/showType', 
+              <%= $.View('//kopidoc/views/class_document/showType1', 
                                  {type: constructor.parameters[i].type , title: null, cache: false })%>
               <var><%= constructor.parameters[i].name %></var>
               <span class="describedBy"></span>

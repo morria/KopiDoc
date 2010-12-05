@@ -36,7 +36,7 @@
         <ol class="parameterList">
           <% for(var i in constructor.parameters) { %>
           <li>
-            <%= $.View('//kopidoc/views/class_document/showType', 
+            <%= $.View('//kopidoc/views/class_document/showType1', 
                                {type: constructor.parameters[i].type , title: null, cache: false })%>
           </li>
           <%}%>
@@ -58,7 +58,7 @@
           <ol>
             <% for(var i in constructor.parameters) { %>
             <li>
-              <%= $.View('//kopidoc/views/class_document/showType', 
+              <%= $.View('//kopidoc/views/class_document/showType1', 
                                  {type: constructor.parameters[i].type , title: null, cache: false })%>
               <var><%= constructor.parameters[i].name %></var>
               <span class="describedBy"></span>
@@ -133,7 +133,7 @@
         <ol class="parameters">
           <% for(var i in constructor.parameters) { %>
           <li>
-            <%= $.View('//kopidoc/views/class_document/showType', 
+            <%= $.View('//kopidoc/views/class_document/showType1', 
                                 {type: constructor.parameters[i].type , title: null })%>
              <span class="name"><%= constructor.parameters[i].name %></span>
           </li>

@@ -98,6 +98,8 @@ article {
         position: fixed;
         top: 25px;
         right: 0px;
+        background-color: rgba(255,255,255,64);
+        z-index: 3;
         ul {
             li {
                 display: inline;
@@ -172,6 +174,10 @@ article {
             min-width: 200px;
             margin-left: 10px;
 
+            li:not(:last-child) {
+                margin-bottom: 40px;
+            }
+
             li {
                 position: relative;
                 >header {
@@ -214,7 +220,8 @@ article {
                 }
                 >div.extraInfo {
                     display: none;
-                    margin-left: 10px;
+                    margin-top: 25px;
+                    margin-left: 15px;
 
                     section {
                         margin-top: 10px;
@@ -222,7 +229,13 @@ article {
                             font-size: 14px;
                             font-variant: small-caps;
                         }
+
+                        .type, a[rel=type] {
+                            margin-left: 5px;
+                        }
+
                         ol, ul {
+                            margin-left: 5px;
                             li {
                                 margin-bottom: 3px;
                             }
@@ -272,6 +285,10 @@ select {
     -webkit-appearance: listbox;
     border: none;
     outline: none;
+
+    option {
+        text-transform: capitalize;
+    }
 }
 
 button {
