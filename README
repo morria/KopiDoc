@@ -1,3 +1,5 @@
+KopiDoc is an application that reads and monitors Java source code, indexing documentation and making it available via a web interface that KopiDoc serves at http://localhost:8080/.
+
 Once you have the source, it should build and run without much hackery
 assuming you have maven installed. Just go into KopiDoc and 
 
