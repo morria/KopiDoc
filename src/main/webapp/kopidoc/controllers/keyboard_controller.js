@@ -152,7 +152,7 @@ searchResult: function(data) {
             item.addClass('selected');
         $('#searchResult').append(item);
     }
-},
+}
 
 
 });

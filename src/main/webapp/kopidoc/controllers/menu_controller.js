@@ -54,7 +54,7 @@ list: function( message ) {
 
 'a[rel=type] click': function(el) {
     var className = $.trim(el.attr('data-qualifiedName'));
-    $.cometd.publish('/service/getClass', { qualifiedClassName: className });
+    $.address.value(className);
     return false;
 },
 

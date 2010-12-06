@@ -21,8 +21,9 @@ $.Controller.extend('kopidoc.Controllers.ClassDocument',
             el.attr('href', docSource).attr('target','_NEW');
             return true;
         }
-        else
-            $.cometd.publish('/service/getClass', { qualifiedClassName: qualifiedClassName });
+
+        $.address.value(qualifiedClassName);
+        return false;
     },
 
     getDocumentationSource: function(packageName, className) {
@@ -79,6 +80,12 @@ $.Controller.extend('kopidoc.Controllers.ClassDocument',
  * When the page loads, gets all class_documents to be displayed.
  */
  load: function(){
+
+     // Listen for address change events and load the document;
+     $.address.change(function(event) {
+         $.cometd.publish('/service/getClass', { qualifiedClassName: event.value.replace('/','') });
+     });
+  
 	   if(!$("#class_document").length) {
          $('body').append($('<article />').attr('id','class_document'));
          var fSuccess = this.callback('show');
