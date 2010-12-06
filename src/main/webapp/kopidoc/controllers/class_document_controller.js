@@ -70,7 +70,7 @@ $.Controller.extend('kopidoc.Controllers.ClassDocument',
         return root + "/"
             + packageName.replace(new RegExp('\\.','g'),"/")+"/" 
             + className + ".html";
-    },
+    }
 
 },
 /* @Prototype */
